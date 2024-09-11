@@ -1,0 +1,5 @@
+Adding user to administrator group
+cmd.exe /k net localgroup administrators user /add
+
+restarting service
+sc stop dllsvc & sc start dllsvc
