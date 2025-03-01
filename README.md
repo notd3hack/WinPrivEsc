@@ -9,7 +9,7 @@ Primary focused to escalate privileges:
 
     - Service binPath
     
-    - Service UnquotedPathSvc
+    - Service UnquotedPathSvc [+]
     
     - Service Registry
     
@@ -17,7 +17,7 @@ Primary focused to escalate privileges:
 
     - Registry Autorun
     
-    - Registry AlwaysInstallelevated 
+    - Registry AlwaysInstallelevated [+] 
 
     - TrustedInstaller
     
