@@ -1,3 +1,20 @@
+<#
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛          
+
+USAGE: irm <github-raw-link> | iex                
+irm is short for Invoke-RestMethod. 
+It will download a script from that website. 
+iex is short for Invoke-Expression. 
+It will run the script
+
+#>
+
 $hkcu = Get-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Installer" -Name "AlwaysInstallElevated" -ErrorAction SilentlyContinue
 $hklm = Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Installer" -Name "AlwaysInstallElevated" -ErrorAction SilentlyContinue
 
