@@ -5,6 +5,7 @@
 // ┳┓┏┓┓┏┏┓┏┓┓┏┓          
 // ┃┃ ┫┣┫┣┫┃ ┃┫           
 // ┻┛┗┛┛┗┛┗┗┛┛┗┛   
+// compile: x86_64-w64-mingw32-gcc -o Process.exe source.c -mwindows
 
 #include <windows.h>
 
