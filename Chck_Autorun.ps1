@@ -1,3 +1,20 @@
+<#
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛          
+
+USAGE: irm <github-raw-link> | iex                
+irm is short for Invoke-RestMethod. 
+It will download a script from that website. 
+iex is short for Invoke-Expression. 
+It will run the script
+
+#>
+
 # Get Autorun Entries from Registry
 $UserRun = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' | Select-Object -Property *
 $MachineRun = Get-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Run' | Select-Object -Property *
