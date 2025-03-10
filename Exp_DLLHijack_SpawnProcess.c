@@ -5,7 +5,6 @@
 // ┳┓┏┓┓┏┏┓┏┓┓┏┓          
 // ┃┃ ┫┣┫┣┫┃ ┃┫           
 // ┻┛┗┛┛┗┛┗┗┛┛┗┛          
-// Thanks to ChatGPT and OSEP
 // For best results use this script on Linux machine for compile
 // For x64 compile with: x86_64-w64-mingw32-gcc windows_dll.c -shared -o output.dll
 // For x86 compile with: i686-w64-mingw32-gcc windows_dll.c -shared -o output.dll
