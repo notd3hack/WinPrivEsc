@@ -12,7 +12,7 @@ void ControlHandler(DWORD request);
 //add the payload here
 int Run() 
 { 
-    system("whoami > c:\\windows\\temp\\service.txt");
+    system("whoami > C:\\Temp\\whoami.txt");
     return 0; 
 } 
 

