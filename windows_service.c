@@ -19,7 +19,7 @@ int Run()
 int main() 
 { 
     SERVICE_TABLE_ENTRY ServiceTable[2];
-    ServiceTable[0].lpServiceName = "MyService";
+    ServiceTable[0].lpServiceName = "RandomService";
     ServiceTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION)ServiceMain;
 
     ServiceTable[1].lpServiceName = NULL;
@@ -39,7 +39,7 @@ void ServiceMain(int argc, char** argv)
     ServiceStatus.dwCheckPoint         = 0; 
     ServiceStatus.dwWaitHint           = 0; 
  
-    hStatus = RegisterServiceCtrlHandler("MyService", (LPHANDLER_FUNCTION)ControlHandler); 
+    hStatus = RegisterServiceCtrlHandler("RandomService", (LPHANDLER_FUNCTION)ControlHandler); 
     Run(); 
     
     ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
