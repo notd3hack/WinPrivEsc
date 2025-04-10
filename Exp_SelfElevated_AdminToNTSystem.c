@@ -53,7 +53,7 @@ HRESULT CreateSystemTask(LPCWSTR exePath) {
     hr = pService->NewTask(0, &pTask);
     if (FAILED(hr)) return hr;
 
-    // Set principal to run as SYSTEM
+    // Set principal to run as SYSTEM there are our escalation
     IPrincipal* pPrincipal = NULL;
     pTask->get_Principal(&pPrincipal);
     pPrincipal->put_Id(_bstr_t(L"Author"));
