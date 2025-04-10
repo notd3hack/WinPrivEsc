@@ -5,6 +5,9 @@ This tools is developed, tested and refined by "d3hack"
 Like Uncle Ben said, "With great power comes great responsibility." But in our case...
 💀 With great shell access comes absolute domination. 💀
 
+Tested on win11 pro
+
+
 Primary focused to escalate privileges: 
 
     - DLL Hijacking
