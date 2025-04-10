@@ -8,6 +8,14 @@
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "shell32.lib")
 
+
+//  ┓      ┓       ┓  ┓   
+// ┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+// ┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+//            ┛          ┛
+// ┳┓┏┓┓┏┏┓┏┓┓┏┓          
+// ┃┃ ┫┣┫┣┫┃ ┃┫           
+// ┻┛┗┛┛┗┛┗┗┛┛┗┛   
 //x86_64-w64-mingw32-gcc Exp_SelfElevated_AdminToNTSystem.c -o winapi_bypass.exe -lole32 -luuid -lcomsupp -lcomdlg32 -lshell32
 
 
