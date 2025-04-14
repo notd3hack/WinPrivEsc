@@ -19,6 +19,10 @@
 //x86_64-w64-mingw32-gcc Exp_SelfElevated_AdminToNTSystem.c -o winapi_bypass.exe -lole32 -luuid -lcomsupp -lcomdlg32 -lshell32
 
 
+
+// It have flaws. Have to fix this sooner as possible
+
+
 HRESULT CreateSystemTask(LPCWSTR exePath) {
     HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (FAILED(hr)) return hr;

