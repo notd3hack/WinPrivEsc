@@ -33,7 +33,7 @@
 #>
 
 param (
-    [string]$PayloadPath = "C:\Windows\System32\calc.exe",
+    [string]$PayloadPath = "C:\Windows\System32\calc.exe", # Its Actually Path to your program.exe
     [ValidateSet("mshta", "rundll32", "forfiles", "wmic")]
     [string]$LOLBin = "mshta"
 )
