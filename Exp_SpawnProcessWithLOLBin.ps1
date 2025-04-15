@@ -22,6 +22,8 @@
                                                        
 #>
 
+# Use Exp_Powershell_SpawnProcessCaller.ps1 for best results
+
 param (
     [string]$PayloadPath = "C:\Windows\System32\calc.exe", # Its Actually Path to your program.exe
     [ValidateSet("mshta", "rundll32", "forfiles", "wmic")]
@@ -61,4 +63,3 @@ switch ($LOLBin) {
 }
 
 
-# Use Exp_Powershell_SpawnProcessCaller.ps1 for best results

