@@ -54,4 +54,5 @@ create a meterpreter shellcode for single line good for hide in the another prog
 
 runas.exe
     net users
-    runas /user:whichoneyouwannause
+    runas /user:usernameofvictim "cmd.exe"
+    runas /user:Machinename\usernameofvictim "cmd.exe"
