@@ -57,3 +57,7 @@ runas.exe
     net users
     runas /user:usernameofvictim "cmd.exe"
     runas /user:Machinename\usernameofvictim "cmd.exe"
+
+Powershell history file in environment
+
+    cat $env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
