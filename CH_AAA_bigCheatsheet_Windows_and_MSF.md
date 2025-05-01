@@ -38,11 +38,11 @@ adding user to administrator group:
 
 restarting service:
     
-    sc stop dllsvc & sc start dllsvc
+    sc stop svcname & sc start svcname
 
 command for compile on kali linux:
 
-    x86_64-w64-mingw32-gcc windows_dll.c -shared -o hijackme.dll
+    x86_64-w64-mingw32-gcc yourcode.c -shared -o yourdllfile.dll
 
 create scheduled task with cmd
     
