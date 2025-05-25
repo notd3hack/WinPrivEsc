@@ -81,3 +81,6 @@ DisableUAC.reg
 ExclusionPath.bat
 
     powershell.exe -command "Add-MpPreference -ExclusionPath C:\"
+
+
+### Based on "Isakov D Pentesting Active Directory and Windows based Infrastructure.pdf" 
