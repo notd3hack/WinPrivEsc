@@ -13,12 +13,13 @@
 function Show-Menu {
     Clear-Host
     Write-Host "=================== Advanced File Integrity Checker ==================="
-    Write-Host "=============================================== developed by d3hack ==="
+    Write-Host "                                              -= developed by d3hack =-"
     Write-Host "                                                                       "
     Write-Host "   1: Generate SHA256.txt file (current folder + subfolders)"
     Write-Host "   2: Check if SHA256.txt file exists"
     Write-Host "   3: Check files integrity against SHA256.txt (with date check)"
     Write-Host "   Q: Quit"
+    Write-Host "                                                                       "
     Write-Host "======================================================================="
 }
 
