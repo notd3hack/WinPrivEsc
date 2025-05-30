@@ -2,7 +2,7 @@
 # We need change Domain name on every machine
 # We need to change OutputPath folder
 $Domain = "VULN.local"
-$OutputPath = "C:\AD_Enumeration_Results"
+$OutputPath = "$env:USERPROFILE\Desktop\AD_Enumeration_Results"
 $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 
 # Create output directory
