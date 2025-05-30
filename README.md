@@ -1,4 +1,3 @@
-
 <h1 align="left">Hey 👋 What's up?</h1>
 
 ###
@@ -35,7 +34,7 @@
 
 ###
 
-<img align="left" height="600" src="https://raw.githubusercontent.com/d3hvck/WinPrivEsc/refs/heads/main/WindowsExploited.webp"  />
+<img align="left" height="400" src="https://raw.githubusercontent.com/d3hvck/WinPrivEsc/refs/heads/main/WindowsExploited.webp"  />
 
 ###
 
@@ -49,14 +48,6 @@
 <div align="center">
   <img src="https://profile-counter.glitch.me/d3hvck/count.svg?"  />
 </div>
-
-###
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph.svg">
-  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph.svg">
-</picture>
 
 ###
 
