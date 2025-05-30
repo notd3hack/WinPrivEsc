@@ -38,6 +38,8 @@ Primary focused to escalate privileges:
 
 - [d3hvck @ Github  ](https://github.com/d3hvck)
 
+- [logo @ github] (https://raw.githubusercontent.com/d3hvck/WinPrivEsc/refs/heads/main/WindowsExploited.webp)
+
 ## Usage
 
 For extremely accuracy please run every scripts one by one 
