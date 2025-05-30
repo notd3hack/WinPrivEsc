@@ -27,7 +27,7 @@ New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 
 # 1. 
 $Users = Get-ADUser -Filter * -Server $Domain -Properties *
-$Users | Select-Object Name, SamAccountName, UserPrincipalName, Enabled, 
+$Users | Select-Object Name, SamAccountName, UserPrincipalName, Description, Enabled, 
     LastLogonDate, PasswordLastSet, PasswordNeverExpires, 
     @{Name="MemberOf";Expression={($_.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ";"}} |
     Export-Csv -Path "$OutputPath\Users_$Timestamp.csv" -NoTypeInformation
