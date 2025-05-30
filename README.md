@@ -62,17 +62,17 @@ Tested on win11 pro
 
 Primary focused to escalate privileges: 
 
-    - DLL Hijacking
+    - DLL Hijacking [+]
 
-    - Service binPath
+    - Service binPath [+]
     
     - Service UnquotedPathSvc [+]
     
-    - Service Registry
+    - Service Registry [+]
     
-    - Service ExecFile
+    - Service ExecFile  [+]
 
-    - Registry Autorun
+    - Registry Autorun [+]
     
     - Registry AlwaysInstallelevated [+] 
 
@@ -80,9 +80,9 @@ Primary focused to escalate privileges:
     
     - Password Mining (Memory/Registry/Config File)
 
-    - Scheduled Task
+    - Scheduled Task [+]
     
-    - Startup Application
+    - Startup Application [+]
 
 ## Authors
 
