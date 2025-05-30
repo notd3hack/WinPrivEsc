@@ -11,7 +11,7 @@ USAGE: irm <github-raw-link> | iex
 Enumerate AD Users and Groups
 We need change Domain name on every machine or every different corps DC
 We need to change OutputPath folder if it needed                
-Download Script and User powershell -ep bypass. After that use script with .\Sec_Audit and more 
+Download Script and User powershell -ep bypass. After that use script with .\Sec_Audit....
 It will run the script
 1. Export all users
 2. Export all groups with members
