@@ -1,4 +1,72 @@
 
+<h1 align="left">Hey 👋 What's up?</h1>
+
+###
+
+<p align="left">Hello my name is Abbas Aghayev but internet knows me as d3hack. Can be d3hvck or d3hxck. If you can help me on anything, please do it. Love to share and work together with any professional.</p>
+
+###
+
+<h2 align="left">About me</h2>
+
+###
+
+<p align="left">✨ Im hacking Windows since 2011<br>📚 I'm currently learning AD DC and Advanced Penetration Testing Methods<br>🎯 Goals: Being HEAD OF CYBERSECURITY DIVISION<br>🎲 Fun fact: Do not trust any code on internet</p>
+
+###
+
+<h2 align="left">I work with</h2>
+
+###
+
+<div align="left">
+  <img src="https://skillicons.dev/icons?i=powershell" height="40" alt="powershell logo"  />
+  <img width="12" />
+  <img src="https://cdn.simpleicons.org/c++/00599C" height="40" alt="cplusplus logo"  />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" height="40" alt="c logo"  />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" height="40" alt="vscode logo"  />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" height="40" alt="python logo"  />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" height="40" alt="windows8 logo"  />
+</div>
+
+###
+
+<img align="left" height="600" src="https://raw.githubusercontent.com/d3hvck/WinPrivEsc/refs/heads/main/WindowsExploited.webp"  />
+
+###
+
+<div align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=d3hvck&hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=dracula&locale=en&hide_border=false&order=1" height="150" alt="stats graph"  />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=d3hvck&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false&order=2" height="150" alt="languages graph"  />
+</div>
+
+###
+
+<div align="center">
+  <img src="https://profile-counter.glitch.me/d3hvck/count.svg?"  />
+</div>
+
+###
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph.svg">
+  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/d3hvck/d3hvck/output/pacman-contribution-graph.svg">
+</picture>
+
+###
+
+<div align="center">
+  <img src="https://github-read-medium-git-main.pahlevikun.vercel.app/latest?limit=4&username=@aghayev2a" alt="Layout with last medium posts"  />
+</div>
+
+###
+
+
 # Windows Local Privilege Escalation
 
 This tools is developed, tested and refined by "d3hack"
@@ -37,8 +105,6 @@ Primary focused to escalate privileges:
 - [d3hack @ LinkedIn ](https://linkedin.com/in/aghayev2a)
 
 - [d3hvck @ Github  ](https://github.com/d3hvck)
-
-- [logo @ github] (https://raw.githubusercontent.com/d3hvck/WinPrivEsc/refs/heads/main/WindowsExploited.webp)
 
 ## Usage
 
