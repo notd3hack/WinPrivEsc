@@ -1,6 +1,23 @@
-# Enumerate AD Users and Groups
-# We need change Domain name on every machine
-# We need to change OutputPath folder
+<#
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛          
+
+USAGE: irm <github-raw-link> | iex
+Enumerate AD Users and Groups
+We need change Domain name on every machine or every different corps DC
+We need to change OutputPath folder if it needed                
+Download Script and User powershell -ep bypass. After that use script with .\Sec_Audit and more 
+It will run the script
+1. Export all users with key properties
+2. Export all groups with their members
+3. Create a detailed membership report
+#>
+
 $Domain = "VULN.local"
 $OutputPath = "$env:USERPROFILE\Desktop\AD_Enumeration_Results"
 $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -8,14 +25,14 @@ $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 # Create output directory
 New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 
-# 1. Export all users with key properties
+# 1. 
 $Users = Get-ADUser -Filter * -Server $Domain -Properties *
 $Users | Select-Object Name, SamAccountName, UserPrincipalName, Enabled, 
     LastLogonDate, PasswordLastSet, PasswordNeverExpires, 
     @{Name="MemberOf";Expression={($_.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ";"}} |
     Export-Csv -Path "$OutputPath\Users_$Timestamp.csv" -NoTypeInformation
 
-# 2. Export all groups with their members
+# 2. 
 $Groups = Get-ADGroup -Filter * -Server $Domain -Properties Members
 $GroupReport = foreach ($Group in $Groups) {
     $Members = Get-ADGroupMember -Identity $Group -Server $Domain | 
@@ -33,7 +50,7 @@ $GroupReport = foreach ($Group in $Groups) {
 
 $GroupReport | Export-Csv -Path "$OutputPath\Groups_$Timestamp.csv" -NoTypeInformation
 
-# 3. Create a detailed membership report
+# 3. 
 $DetailedMembership = foreach ($Group in $Groups) {
     $Members = Get-ADGroupMember -Identity $Group -Server $Domain | 
                Select-Object Name, SamAccountName, ObjectClass
@@ -50,7 +67,7 @@ $DetailedMembership = foreach ($Group in $Groups) {
 
 $DetailedMembership | Export-Csv -Path "$OutputPath\GroupMembership_$Timestamp.csv" -NoTypeInformation
 
-# Display summary
+# Display summary report
 Write-Host "`n=== Enumeration Complete ===" -ForegroundColor Cyan
 Write-Host "Users found: $($Users.Count)" -ForegroundColor Green
 Write-Host "Groups found: $($Groups.Count)" -ForegroundColor Green
