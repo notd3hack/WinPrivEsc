@@ -1,11 +1,9 @@
 <#
-.SYNOPSIS
-    PowerShell Process Injection Demo (Educational)
+PowerShell Process Injection Demo (Educational)
 .DESCRIPTION
     Injects shellcode into explorer.exe using Win32 APIs.
     Designed for cybersecurity training (use responsibly).
-.NOTES
-    Author: Cybersecurity Instructor
+    Author: Abbas d3hack Aghayev
     Lab: Windows 11 (Tested)
 #>
 
