@@ -1,5 +1,3 @@
-https://www.linkedin.com/in/elmir-karimli-0b2558254/
-
 import os
 import sys
 import json
