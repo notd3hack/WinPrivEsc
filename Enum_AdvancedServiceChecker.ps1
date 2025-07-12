@@ -4,10 +4,9 @@
 .DESCRIPTION
     Checks all services, their executables, and verifies digital signatures
     with special attention to user-configured and third-party services
-    Created With DeepSeek Technologies, Optimized for Windows 11
 .NOTES
     Version     : 1.1
-    Author      : System Admin
+    Author      : d3hvck
     Created     : $(Get-Date)
     Requires    : PowerShell 5.1+, Admin rights
 #>
