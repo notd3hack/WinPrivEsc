@@ -1,3 +1,12 @@
+//  ┓      ┓       ┓  ┓   
+// ┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+// ┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+//            ┛          ┛
+// ┳┓┏┓┓┏┏┓┏┓┓┏┓          
+// ┃┃ ┫┣┫┣┫┃ ┃┫           
+// ┻┛┗┛┛┗┛┗┗┛┛┗┛   
+// compile: x86_64-w64-mingw32-gcc -o Process.exe source.c -mwindows
+
 #include <windows.h>
 #include <stdio.h>
 
@@ -9,7 +18,7 @@ SERVICE_STATUS_HANDLE hStatus;
 void ServiceMain(int argc, char** argv); 
 void ControlHandler(DWORD request); 
 
-//add the payload here
+//add the command to execute here
 int Run() 
 { 
     system("whoami > C:\\Temp\\whoami.txt");
