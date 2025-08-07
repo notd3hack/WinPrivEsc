@@ -1,5 +1,6 @@
 import base64
 import argparse
+import os
 
 def print_banner():
     banner = r"""
@@ -13,7 +14,9 @@ def print_banner():
 ┛┗┗ ┗┻┗┗┛┗┗┛┣┛ 
 
   [🔬] Researched by d3hvck
-  [+] USAGE: python3 Exp_Encoder.py -c "powershell command list but single line" -o
+  [+] USAGE: 
+    python3 Exp_Encoder.py -c "powershell command" -o
+    python3 Exp_Encoder.py -f powershellfile.ps1 -o
 """
     print(banner)
 
@@ -35,6 +38,13 @@ def simple_obfuscate(command):
         command = command.replace(k, v)
     return command
 
+def read_ps_file(file_path):
+    if not os.path.exists(file_path):
+        print(f"[!] Error: File '{file_path}' not found")
+        exit(1)
+    with open(file_path, 'r') as f:
+        return f.read()
+
 def generate_payloads(encoded_command):
     print("\n[+] EncodedCommand only:")
     print(f"powershell -nop -w hidden -EncodedCommand {encoded_command}\n")
@@ -55,11 +65,17 @@ def generate_payloads(encoded_command):
 if __name__ == "__main__":
     print_banner()
     parser = argparse.ArgumentParser(description="PowerShell Red Team Encoder")
-    parser.add_argument("-c", "--command", required=True, help="PowerShell command to encode")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-c", "--command", help="PowerShell command to encode")
+    group.add_argument("-f", "--file", help="PowerShell script file to encode")
     parser.add_argument("-o", "--obfuscate", action="store_true", help="Apply keyword obfuscation")
     args = parser.parse_args()
 
-    input_command = args.command
+    if args.file:
+        input_command = read_ps_file(args.file)
+    else:
+        input_command = args.command
+
     if args.obfuscate:
         input_command = simple_obfuscate(input_command)
 
