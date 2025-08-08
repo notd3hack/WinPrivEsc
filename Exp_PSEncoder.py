@@ -14,8 +14,11 @@ def print_banner():
 ┛┗┗ ┗┻┗┗┛┗┗┛┣┛ 
 
   [🔬] Researched by d3hvck
-  [+] USAGE: 
+  [+] USAGE:
+  [+] The program designed to use agains Windows Labs, Do not use for illegal purpouse
+    If you wanna encrypt command then use -c option
     python3 Exp_Encoder.py -c "powershell command" -o
+    If you want to encrypt pre maded PowerShell ps1 file then use -f option
     python3 Exp_Encoder.py -f powershellfile.ps1 -o
 """
     print(banner)
