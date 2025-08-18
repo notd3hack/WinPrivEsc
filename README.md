@@ -59,6 +59,11 @@ Like Uncle Ben said, "With great power comes great responsibility." But in our c
 
 Tested on win11 pro
 
+Chck = Checker
+Dlvr = Delivery Method
+Enum = Enumeration
+Exp = Exploit
+Sec = Security or Audit Tools
 
 Primary focused to escalate privileges: 
 
