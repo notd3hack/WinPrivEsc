@@ -1,3 +1,10 @@
+//  ┓      ┓       ┓  ┓   
+// ┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+// ┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+//            ┛          ┛
+// ┳┓┏┓┓┏┏┓┏┓┓┏┓          
+// ┃┃ ┫┣┫┣┫┃ ┃┫           
+// ┻┛┗┛┛┗┛┗┗┛┛┗┛ 
 // For x64 compile with: x86_64-w64-mingw32-gcc Exp_DLLHijack_Lab.c -shared -o output.dll
 // For x86 compile with: i686-w64-mingw32-gcc Exp_DLLHijack_Lab.c -shared -o output.dll
 
