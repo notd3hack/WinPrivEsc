@@ -12,10 +12,11 @@ Enumerate AD Users and Groups
 We need change Domain name on every machine or every different corps DC
 We need to change OutputPath folder if it needed                
 Download Script and User powershell -ep bypass. After that use script with .\Sec_Audit....
-It will run the script
-1. Export all users
-2. Export all groups with members
-3. Generate summary report
+Before the Execution: 
+1. Firstly Change Domain name from VULN.local because its for testing purpouse only and tested on local lab
+2. Export all users
+3. Export all groups with members
+4. Generate summary report 
 #>
 
 $Domain = "VULN.local"
