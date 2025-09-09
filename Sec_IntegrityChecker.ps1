@@ -35,7 +35,6 @@ function Generate-SHA256File {
     }
     
     try {
-        # Get all files in current directory and subdirectories except SHA256.txt itself
         $files = Get-ChildItem -File -Recurse | Where-Object { $_.Name -ne $sha256File }
         
         if ($files.Count -eq 0) {
@@ -43,34 +42,26 @@ function Generate-SHA256File {
             return
         }
         
-        # Initialize progress bar variables
         $currentFile = 1
         $totalFiles = $files.Count
         
-        # Create or overwrite SHA256.txt
         $hashes = foreach ($file in $files) {
-            # Calculate progress percentage
             $percentComplete = ($currentFile / $totalFiles) * 100
             
-            # Show progress bar
             Write-Progress -Activity "Generating SHA256 hashes" -Status "Processing $($file.FullName)" `
                 -PercentComplete $percentComplete `
                 -CurrentOperation "File $currentFile of $totalFiles"
             
-            # Calculate hash and get last write time
             $hash = Get-FileHash -Algorithm SHA256 -Path $file.FullName
             $lastModified = $file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
             
-            # Get relative path
             $relativePath = $file.FullName.Substring((Get-Location).Path.Length + 1)
             
-            # Format: HASH|MODIFIED_DATE|RELATIVE_PATH
             "$($hash.Hash)|$lastModified|$relativePath"
             
             $currentFile++
         }
         
-        # Complete the progress bar
         Write-Progress -Activity "Generating SHA256 hashes" -Completed
         
         $hashes | Out-File -FilePath $sha256File -Encoding UTF8
@@ -93,7 +84,6 @@ function Check-SHA256FileExists {
         Write-Host "Generated on: $($fileInfo.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
         Write-Host "Contains hashes for $fileCount files" -ForegroundColor Cyan
         
-        # Show sample of included paths
         $sampleRecords = Get-Content $sha256File | Select-Object -First 3
         Write-Host "`nSample records:" -ForegroundColor Cyan
         $sampleRecords | ForEach-Object {
@@ -126,20 +116,16 @@ function Check-FileIntegrity {
         $modifiedFiles = @()
         $missingFiles = 0
         
-        # Initialize progress bar variables
         $currentCheck = 1
         $totalChecks = $storedRecords.Count
         
         foreach ($record in $storedRecords) {
-            # Calculate progress percentage
             $percentComplete = ($currentCheck / $totalChecks) * 100
             
-            # Show progress bar
             Write-Progress -Activity "Verifying file integrity" -Status "Checking files..." `
                 -PercentComplete $percentComplete `
                 -CurrentOperation "File $currentCheck of $totalChecks"
             
-            # Split the record into parts (HASH|DATE|RELATIVE_PATH)
             $parts = $record -split "\|", 3
             if ($parts.Count -ne 3) {
                 Write-Host "Invalid record format in SHA256.txt: $record" -ForegroundColor Yellow
@@ -165,7 +151,6 @@ function Check-FileIntegrity {
             $currentHash = (Get-FileHash -Algorithm SHA256 -Path $fullPath).Hash
             $currentDate = $currentFile.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
             
-            # Check both hash and modification date
             if ($currentHash -eq $storedHash) {
                 if ($currentDate -eq $storedDate) {
                     Write-Host "[PASS] $relativePath file is healthy" -ForegroundColor Green
@@ -186,7 +171,6 @@ function Check-FileIntegrity {
             $currentCheck++
         }
         
-        # Complete the progress bar
         Write-Progress -Activity "Verifying file integrity" -Completed
         
         Write-Host "`nIntegrity check completed:" -ForegroundColor Cyan
@@ -219,7 +203,6 @@ function Check-FileIntegrity {
     }
 }
 
-# Main script execution
 do {
     Show-Menu
     $selection = Read-Host "Please make a selection"
