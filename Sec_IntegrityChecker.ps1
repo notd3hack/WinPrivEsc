@@ -1,13 +1,16 @@
 <#
-.SYNOPSIS
-    Advanced File Integrity Checker and Modification Tracker with Subfolder Support
-.DESCRIPTION
-    This script provides options to generate SHA256 hashes for files in current directory
-    and all subfolders, check for SHA256.txt, and verify file integrity against stored hashes.
-.NOTES
-    File Name      : Sec_IntegrityChecker.ps1
-    Author         : Abbas "d3hack" Aghayev
-    Prerequisite   : PowerShell 5.1 or later
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛  
+
+Advanced File Integrity Checker and Modification Tracker with Subfolder Support
+This script provides options to generate SHA256 hashes for files in current directory
+and all subfolders, check for SHA256.txt, and verify file integrity against stored hashes.
+
 #>
 
 function Show-Menu {
