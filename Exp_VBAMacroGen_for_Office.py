@@ -8,7 +8,7 @@ banner = r"""
 ╚═════╝ ╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
 
     Researched by OffSec, 
-    Refined by D3H^CK
+    Refined by D3HVCK
 
 """
 print(banner)
