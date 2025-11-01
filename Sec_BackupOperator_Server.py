@@ -42,7 +42,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             
             # Save the raw data
             import datetime
-            filename = f"upload_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.bin"
+            filename = f"upload_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.dat"
             with open(os.path.join(UPLOAD_DIR, filename), 'wb') as f:
                 f.write(post_data)
             
