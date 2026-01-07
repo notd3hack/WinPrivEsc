@@ -2,23 +2,31 @@
 import http.server
 import socketserver
 import os
+import socket
 
-# you can manually change port 8000
-# its designed for reciving files from any machine to your linux server
+PORT = 8000
+UPLOAD_DIR = "backups"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-banner = r"""
-  ____             _                 ____                       _             
- |  _ \           | |               / __ \                     | |            
- | |_) | __ _  ___| | ___   _ _ __ | |  | |_ __   ___ _ __ __ _| |_ ___  _ __ 
- |  _ < / _` |/ __| |/ / | | | '_ \| |  | | '_ \ / _ \ '__/ _` | __/ _ \| '__|
- | |_) | (_| | (__|   <| |_| | |_) | |__| | |_) |  __/ | | (_| | || (_) | |   
- |____/ \__,_|\___|_|\_\\__,_| .__/ \____/| .__/ \___|_|  \__,_|\__\___/|_|   
-                             | |          | |                                 
-                             |_|          |_|                                 
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
+
+banner = rf"""
+  ____             _                 ____                       _              
+ |  _ \           | |               / __ \                     | |             
+ | |_) | __ _  ___| | ___   _ _ __ | |  | |_ __   ___ _ __ __ _| |_ ___  _ __  
+ |  _ < / _` |/ __| |/ / | | | '_ \| |  | | '_ \ / _ \ '__/ _` | __/ _ \| '__| 
+ | |_) | (_| | (__|   <| |_| | |_) | |__| | |_) |  __/ | | (_| | || (_) | |    
+ |____/ \__,_|\___|_|\_\\__,_| .__/ \____/| .__/ \___|_|  \__,_|\__\___/|_|    
+                             | |          | |                                  
+                             |_|          |_|                                  
 
     Researched and Developed by d3hvck
-
+    Current Server IP: {ip_address}
+    Listening on Port: {PORT}
 """
+
+
 print(banner)
 
 PORT = 8000
