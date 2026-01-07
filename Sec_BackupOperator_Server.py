@@ -2,36 +2,38 @@
 import http.server
 import socketserver
 import os
-import socket
+import netifaces
 
 PORT = 8000
 UPLOAD_DIR = "backups"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-hostname = socket.gethostname()
-ip_address = socket.gethostbyname(hostname)
+try:
+    ip_address = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']
+except Exception:
+    ip_address = "Unavailable"
 
-banner = rf"""
-  ____             _                 ____                       _              
- |  _ \           | |               / __ \                     | |             
- | |_) | __ _  ___| | ___   _ _ __ | |  | |_ __   ___ _ __ __ _| |_ ___  _ __  
- |  _ < / _` |/ __| |/ / | | | '_ \| |  | | '_ \ / _ \ '__/ _` | __/ _ \| '__| 
- | |_) | (_| | (__|   <| |_| | |_) | |__| | |_) |  __/ | | (_| | || (_) | |    
- |____/ \__,_|\___|_|\_\\__,_| .__/ \____/| .__/ \___|_|  \__,_|\__\___/|_|    
-                             | |          | |                                  
-                             |_|          |_|                                  
+GREEN = "\033[92m"
+CYAN = "\033[96m"
+RESET = "\033[0m"
+
+banner = f"""
+{GREEN}  ____             _                 ____                       _              {RESET}
+{GREEN} |  _ \\           | |               / __ \\                     | |             {RESET}
+{GREEN} | |_) | __ _  ___| | ___   _ _ __ | |  | |_ __   ___ _ __ __ _| |_ ___  _ __  {RESET}
+{GREEN} |  _ < / _` |/ __| |/ / | | | '_ \\| |  | | '_ \\ / _ \\ '__/ _` | __/ _ \\| '__| {RESET}
+{GREEN} | |_) | (_| | (__|   <| |_| | |_) | |__| | |_) |  __/ | | (_| | || (_) | |    {RESET}
+{GREEN} |____/ \\__,_|\\___|_|\\_\\\\__,_| .__/ \\____/| .__/ \\___|_|  \\__,_|\\__\\___/|_| {RESET}   
+{GREEN}                             | |          | |                                  {RESET}
+{GREEN}                             |_|          |_|                                  {RESET}
 
     Researched and Developed by d3hvck
-    Current Server IP: {ip_address}
+    {GREEN}Backup{RESET} {CYAN}Operator{RESET}
+    Current eth0 IP: {ip_address}
     Listening on Port: {PORT}
 """
 
-
 print(banner)
-
-PORT = 8000
-UPLOAD_DIR = "backups"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -47,13 +49,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/upload':
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
-            
-            # Save the raw data
+
             import datetime
-            filename = f"upload_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.dat"
+            filename = f"file_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
             with open(os.path.join(UPLOAD_DIR, filename), 'wb') as f:
                 f.write(post_data)
-            
+
             self.send_response(200)
             self.end_headers()
             self.wfile.write(f"File received: {filename}".encode())
@@ -65,4 +66,3 @@ print(f"Starting server on port {PORT}")
 print(f"Upload directory: {os.path.abspath(UPLOAD_DIR)}")
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
     httpd.serve_forever()
-EOF
