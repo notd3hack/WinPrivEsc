@@ -1,9 +1,23 @@
-# Get all files recursively from current directory and subdirectories
+<#
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛  
+
+Designed for using agains self forking program component to freeup some spaces.
+Be super carefull while using it. This script can scan current folder "files, folders, subfolders"
+Before using this script start powershell with "powershell -ep bypass"
+
+#>
+
+
 $files = Get-ChildItem -File -Recurse
 $total = $files.Count
 $counter = 0
 
-# Store relative paths for better readability in output
 $relativePath = Get-Location
 
 $hashes = foreach ($file in $files) {
@@ -44,5 +58,41 @@ if ($duplicates.Count -eq 0) {
             }
         }
         Write-Host "`n"
+    }
+    
+    Write-Host "`n" + ("=" * 60) -ForegroundColor Cyan
+    $deleteChoice = Read-Host "Do you want to delete duplicate files? (Y/N)"
+    
+    if ($deleteChoice -eq "Y" -or $deleteChoice -eq "y") {
+        $deletedCount = 0
+        $totalSpaceSaved = 0
+        
+        foreach ($group in $duplicates) {
+            $first = $true
+            foreach ($dup in $group.Group) {
+                if (-not $first) {
+                    try {
+                        Remove-Item -Path $dup.FullPath -Force -ErrorAction Stop
+                        Write-Host "Deleted: $($dup.RelativePath)" -ForegroundColor Yellow
+                        $deletedCount++
+                        $totalSpaceSaved += $dup.Size
+                    } catch {
+                        Write-Host "Error deleting $($dup.RelativePath): $_" -ForegroundColor Red
+                    }
+                }
+                $first = $false
+            }
+        }
+        
+        $spaceSavedMB = [math]::Round($totalSpaceSaved / 1MB, 2)
+        $spaceSavedGB = [math]::Round($totalSpaceSaved / 1GB, 2)
+        
+        Write-Host "`n" + ("=" * 60) -ForegroundColor Green
+        Write-Host "SUMMARY:" -ForegroundColor Green
+        Write-Host "Deleted $deletedCount duplicate files" -ForegroundColor Green
+        Write-Host "Space saved: $spaceSavedMB MB ($spaceSavedGB GB)" -ForegroundColor Green
+        Write-Host "=" * 60 -ForegroundColor Green
+    } else {
+        Write-Host "No files were deleted." -ForegroundColor Yellow
     }
 }
