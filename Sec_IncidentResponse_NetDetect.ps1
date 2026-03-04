@@ -7,12 +7,26 @@
 ┃┃ ┫┣┫┣┫┃ ┃┫           
 ┻┛┗┛┛┗┛┗┗┛┛┗┛  
 
-PowerShell script designed to detect anormality on computer (especially network connection)
+PowerShell script designed to detect anomalies on computer (especially network connections)
 Source (IP:PORT) and Destination (IP:PORT) and Process {NAME:ID} is visible
-Run as Administrator for full process resolution
 IR-NETWATCH  |  Incident Response TCP Connection Monitor
 Researched by d3hack@VulnLab optimized with Sonnet 4.6
 #>
+
+$isAdmin = ([Security.Principal.WindowsPrincipal] `
+    [Security.Principal.WindowsIdentity]::GetCurrent() `
+).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $isAdmin) {
+    Write-Host ""
+    Write-Host "  [!!] Not running as Administrator. Requesting elevation..." -ForegroundColor Yellow
+    Write-Host ""
+    Start-Process powershell.exe `
+        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -NoExit -File `"$PSCommandPath`"" `
+        -Verb RunAs `
+        -Wait
+    exit
+}
 
 $TRUSTED_PORTS   = @(80, 443, 53, 123)
 $SUSPECT_PORTS   = @(4444, 1337, 31337, 8080, 8888, 9001, 6666, 6667, 1234)
@@ -23,12 +37,10 @@ $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 Write-Host ""
 Write-Host "  IR-NETWATCH  |  TCP Established Connections  |  $timestamp" -ForegroundColor DarkCyan
 Write-Host ""
-
 Write-Host "  [CRIT] = Known C2 port or same local/remote port" -ForegroundColor Red
 Write-Host "  [HIGH] = Non-standard remote port" -ForegroundColor Yellow
 Write-Host "  [INFO] = Trusted port (80/443/53/123)" -ForegroundColor DarkGray
 Write-Host ""
-
 Write-Host ("  {0,-8} {1,-24} {2,-24} {3,-22} {4}" -f "SEV", "LOCAL", "REMOTE", "PROCESS", "REASON") -ForegroundColor DarkGray
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 
@@ -90,10 +102,11 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
 
     if ($sev -ne "INFO") {
         $alerts.Add([PSCustomObject]@{
-            Severity   = $sev
-            Remote     = "$remoteAddr`:$remotePort"
-            Process    = $procName
-            Reason     = $reason
+            Severity = $sev
+            Remote   = "$remoteAddr`:$remotePort"
+            Process  = $procName
+            PID      = $pid_
+            Reason   = $reason
         })
     }
 }
@@ -111,19 +124,20 @@ if ($alerts.Count -eq 0) {
         $color = if ($_.Severity -eq "CRIT") { "Red" } else { "Yellow" }
         Write-Host "     [$($_.Severity)]  $($_.Remote)  ->  $($_.Process)" -ForegroundColor $color
         Write-Host "            > $($_.Reason)" -ForegroundColor DarkGray
+        Write-Host "            > Kill: Stop-Process -Id $($_.PID) -Force" -ForegroundColor DarkGray
     }
 }
 
 Write-Host ""
 Write-Host "  Scan complete: $timestamp" -ForegroundColor DarkCyan
 Write-Host ""
-Write-Host "  ACTIONS:" -ForegroundColor DarkCyan
-Write-Host "  To kill a suspicious process by PID:" -ForegroundColor DarkGray
-Write-Host "    Stop-Process -Id <PID> -Force" -ForegroundColor White
-Write-Host "  To kill by name (all instances):" -ForegroundColor DarkGray
-Write-Host "    Stop-Process -Name <ProcessName> -Force" -ForegroundColor White
-Write-Host "  To block a remote IP via firewall:" -ForegroundColor DarkGray
-Write-Host "    New-NetFirewallRule -DisplayName 'IR-Block' -Direction Outbound -RemoteAddress <IP> -Action Block" -ForegroundColor White
-Write-Host "  To dump full connection details to CSV:" -ForegroundColor DarkGray
-Write-Host "    Get-NetTCPConnection | Export-Csv -Path C:\IR\connections.csv -NoTypeInformation" -ForegroundColor White
+Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  QUICK ACTIONS:" -ForegroundColor DarkCyan
+Write-Host "  Kill process by PID   :  Stop-Process -Id <PID> -Force" -ForegroundColor White
+Write-Host "  Kill process by name  :  Stop-Process -Name <ProcessName> -Force" -ForegroundColor White
+Write-Host "  Block remote IP       :  New-NetFirewallRule -DisplayName 'IR-Block' -Direction Outbound -RemoteAddress <IP> -Action Block" -ForegroundColor White
+Write-Host "  Export to CSV         :  Get-NetTCPConnection | Export-Csv -Path C:\IR\connections.csv -NoTypeInformation" -ForegroundColor White
+Write-Host ""
+Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 Write-Host ""
