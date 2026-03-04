@@ -8,7 +8,6 @@
 ┻┛┗┛┛┗┛┗┗┛┛┗┛  
 
 PowerShell script designed to detect anomalies on computer (especially network connections)
-Do not use as iwr link | iex
 Source (IP:PORT) and Destination (IP:PORT) and Process {NAME:ID} is visible
 IR-NETWATCH  |  Incident Response TCP Connection Monitor
 Researched by d3hack@VulnLab optimized with Sonnet 4.6
@@ -42,13 +41,60 @@ Write-Host "  [CRIT] = Known C2 port or same local/remote port" -ForegroundColor
 Write-Host "  [HIGH] = Non-standard remote port" -ForegroundColor Yellow
 Write-Host "  [INFO] = Trusted port (80/443/53/123)" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host ("  {0,-8} {1,-24} {2,-24} {3,-22} {4}" -f "SEV", "LOCAL", "REMOTE", "PROCESS", "REASON") -ForegroundColor DarkGray
-Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
+Write-Host ("  {0,-8} {1,-24} {2,-24} {3,-18} {4,-8} {5}" -f "SEV", "LOCAL", "REMOTE", "PROCESS", "PID", "REASON") -ForegroundColor DarkGray
+Write-Host ("  " + ("-" * 100)) -ForegroundColor DarkGray
 
-$procTable = @{}
-Get-Process | ForEach-Object { $procTable[$_.Id] = $_ }
+# ============================================================
+#  PROCESS CACHE
+#  Layer 1 : Get-Process         (fast, user+admin processes)
+#  Layer 2 : CIM Win32_Process   (fallback, catches system/svchost/idle)
+# ============================================================
+$procTable    = @{}   # PID -> [Name, Path]  via Get-Process
+$cimTable     = @{}   # PID -> [Name, Path]  via CIM fallback
+
+Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
+    $path = try { $_.MainModule.FileName } catch { $null }
+    $procTable[$_.Id] = [PSCustomObject]@{
+        Name = $_.ProcessName
+        Path = if ($path) { $path } else { $null }
+    }
+}
+
+Get-CimInstance -ClassName Win32_Process -ErrorAction SilentlyContinue | ForEach-Object {
+    $cimTable[$_.ProcessId] = [PSCustomObject]@{
+        Name = $_.Name -replace '\.exe$', ''
+        Path = if ($_.ExecutablePath) { $_.ExecutablePath } else { "Protected / System process" }
+    }
+}
+
+function Resolve-Process {
+    param([int]$PID_)
+
+    if ($procTable.ContainsKey($PID_)) {
+        $p    = $procTable[$PID_]
+        $name = $p.Name
+        $path = if ($p.Path) { $p.Path } `
+                elseif ($cimTable.ContainsKey($PID_) -and $cimTable[$PID_].Path) { $cimTable[$PID_].Path } `
+                else { "Path unavailable" }
+        return $name, $path
+    }
+
+    if ($cimTable.ContainsKey($PID_)) {
+        $c = $cimTable[$PID_]
+        return $c.Name, $c.Path
+    }
+
+    $live = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $PID_" -ErrorAction SilentlyContinue
+    if ($live) {
+        $livePath = if ($live.ExecutablePath) { $live.ExecutablePath } else { "Protected / System process" }
+        return ($live.Name -replace '\.exe$', ''), $livePath
+    }
+
+    return "UNKNOWN", "N/A"
+}
 
 $alerts = [System.Collections.Generic.List[object]]::new()
+
 
 Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Object {
     $conn       = $_
@@ -57,8 +103,8 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
     $remoteAddr = $conn.RemoteAddress
     $localAddr  = $conn.LocalAddress
     $pid_       = $conn.OwningProcess
-    $proc       = $procTable[$pid_]
-    $procName   = if ($proc) { "$($proc.ProcessName) ($pid_)" } else { "UNKNOWN ($pid_)" }
+
+    $procName, $procPath = Resolve-Process -PID_ $pid_
 
     $isLoopback = $false
     foreach ($prefix in $LOOPBACK_PREFIX) {
@@ -88,11 +134,12 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
         $bg     = $null
     }
 
-    $line = "  {0,-8} {1,-24} {2,-24} {3,-22} {4}" -f `
+    $line = "  {0,-8} {1,-24} {2,-24} {3,-18} {4,-8} {5}" -f `
         $sev,
         "$localAddr`:$localPort",
         "$remoteAddr`:$remotePort",
         $procName,
+        $pid_,
         $reason
 
     if ($bg) {
@@ -101,19 +148,24 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
         Write-Host $line -ForegroundColor $fg
     }
 
+    $pathColor = if ($bg) { "White" } elseif ($sev -eq "HIGH") { "Yellow" } else { "DarkGray" }
+    Write-Host ("           Path : $procPath") -ForegroundColor $pathColor
+
     if ($sev -ne "INFO") {
         $alerts.Add([PSCustomObject]@{
             Severity = $sev
             Remote   = "$remoteAddr`:$remotePort"
-            Process  = $procName
+            ProcName = $procName
+            ProcPath = $procPath
             PID      = $pid_
             Reason   = $reason
         })
     }
 }
 
+
 Write-Host ""
-Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
+Write-Host ("  " + ("-" * 100)) -ForegroundColor DarkGray
 Write-Host ""
 
 if ($alerts.Count -eq 0) {
@@ -123,16 +175,19 @@ if ($alerts.Count -eq 0) {
     Write-Host ""
     $alerts | ForEach-Object {
         $color = if ($_.Severity -eq "CRIT") { "Red" } else { "Yellow" }
-        Write-Host "     [$($_.Severity)]  $($_.Remote)  ->  $($_.Process)" -ForegroundColor $color
-        Write-Host "            > $($_.Reason)" -ForegroundColor DarkGray
-        Write-Host "            > Kill: Stop-Process -Id $($_.PID) -Force" -ForegroundColor DarkGray
+        Write-Host "     [$($_.Severity)]  $($_.Remote)" -ForegroundColor $color
+        Write-Host "            > Process  : $($_.ProcName)  (PID: $($_.PID))" -ForegroundColor White
+        Write-Host "            > Path     : $($_.ProcPath)" -ForegroundColor DarkGray
+        Write-Host "            > Reason   : $($_.Reason)" -ForegroundColor DarkGray
+        Write-Host "            > Kill     : Stop-Process -Id $($_.PID) -Force" -ForegroundColor DarkGray
+        Write-Host ""
     }
 }
 
+
+Write-Host ("  " + ("-" * 100)) -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Scan complete: $timestamp" -ForegroundColor DarkCyan
-Write-Host ""
-Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  QUICK ACTIONS:" -ForegroundColor DarkCyan
 Write-Host "  Kill process by PID   :  Stop-Process -Id <PID> -Force" -ForegroundColor White
@@ -140,7 +195,7 @@ Write-Host "  Kill process by name  :  Stop-Process -Name <ProcessName> -Force" 
 Write-Host "  Block remote IP       :  New-NetFirewallRule -DisplayName 'IR-Block' -Direction Outbound -RemoteAddress <IP> -Action Block" -ForegroundColor White
 Write-Host "  Export to CSV         :  Get-NetTCPConnection | Export-Csv -Path C:\IR\connections.csv -NoTypeInformation" -ForegroundColor White
 Write-Host ""
-Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
+Write-Host ("  " + ("-" * 100)) -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Window will stay open. Type 'exit' to close or close manually." -ForegroundColor DarkCyan
 Write-Host ""
