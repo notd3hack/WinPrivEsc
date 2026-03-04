@@ -32,7 +32,6 @@ Write-Host ""
 Write-Host ("  {0,-8} {1,-24} {2,-24} {3,-22} {4}" -f "SEV", "LOCAL", "REMOTE", "PROCESS", "REASON") -ForegroundColor DarkGray
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 
-# Cache all processes once
 $procTable = @{}
 Get-Process | ForEach-Object { $procTable[$_.Id] = $_ }
 
@@ -48,14 +47,12 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
     $proc       = $procTable[$pid_]
     $procName   = if ($proc) { "$($proc.ProcessName) ($pid_)" } else { "UNKNOWN ($pid_)" }
 
-    # Skip loopback
     $isLoopback = $false
     foreach ($prefix in $LOOPBACK_PREFIX) {
         if ($remoteAddr.StartsWith($prefix)) { $isLoopback = $true; break }
     }
     if ($isLoopback) { return }
 
-    # Severity logic
     $sev    = "INFO"
     $reason = "Trusted port"
     $fg     = "DarkGray"
@@ -101,7 +98,6 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
     }
 }
 
-# Summary block
 Write-Host ""
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 Write-Host ""
