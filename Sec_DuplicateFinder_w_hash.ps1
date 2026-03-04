@@ -10,7 +10,6 @@
 Designed for using agains self forking program component to freeup some spaces.
 Be super carefull while using it. This script can scan current folder "files, folders, subfolders"
 Before using this script start powershell with "powershell -ep bypass"
-
 #>
 
 
