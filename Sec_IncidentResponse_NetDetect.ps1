@@ -13,6 +13,9 @@ IR-NETWATCH  |  Incident Response TCP Connection Monitor
 Researched by d3hack@VulnLab optimized with Sonnet 4.6
 #>
 
+# ============================================================
+#  SELF-ELEVATE -- relaunches as Admin, stays open after scan
+# ============================================================
 $isAdmin = ([Security.Principal.WindowsPrincipal] `
     [Security.Principal.WindowsIdentity]::GetCurrent() `
 ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -28,10 +31,16 @@ if (-not $isAdmin) {
     exit
 }
 
+# ============================================================
+#  CONFIGURATION
+# ============================================================
 $TRUSTED_PORTS   = @(80, 443, 53, 123)
 $SUSPECT_PORTS   = @(4444, 1337, 31337, 8080, 8888, 9001, 6666, 6667, 1234)
 $LOOPBACK_PREFIX = @('127.', '::1', '0.0.0.0')
 
+# ============================================================
+#  HEADER
+# ============================================================
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 Write-Host ""
@@ -44,11 +53,17 @@ Write-Host ""
 Write-Host ("  {0,-8} {1,-24} {2,-24} {3,-22} {4}" -f "SEV", "LOCAL", "REMOTE", "PROCESS", "REASON") -ForegroundColor DarkGray
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 
+# ============================================================
+#  PROCESS CACHE  (single lookup, faster than per-connection)
+# ============================================================
 $procTable = @{}
 Get-Process | ForEach-Object { $procTable[$_.Id] = $_ }
 
 $alerts = [System.Collections.Generic.List[object]]::new()
 
+# ============================================================
+#  MAIN SCAN
+# ============================================================
 Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Object {
     $conn       = $_
     $localPort  = $conn.LocalPort
@@ -59,12 +74,14 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
     $proc       = $procTable[$pid_]
     $procName   = if ($proc) { "$($proc.ProcessName) ($pid_)" } else { "UNKNOWN ($pid_)" }
 
+    # Skip loopback -- not useful during IR
     $isLoopback = $false
     foreach ($prefix in $LOOPBACK_PREFIX) {
         if ($remoteAddr.StartsWith($prefix)) { $isLoopback = $true; break }
     }
     if ($isLoopback) { return }
 
+    # Severity classification
     $sev    = "INFO"
     $reason = "Trusted port"
     $fg     = "DarkGray"
@@ -111,6 +128,9 @@ Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' } | ForEach-Obj
     }
 }
 
+# ============================================================
+#  ALERT SUMMARY
+# ============================================================
 Write-Host ""
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
 Write-Host ""
@@ -128,6 +148,9 @@ if ($alerts.Count -eq 0) {
     }
 }
 
+# ============================================================
+#  FOOTER + QUICK ACTIONS
+# ============================================================
 Write-Host ""
 Write-Host "  Scan complete: $timestamp" -ForegroundColor DarkCyan
 Write-Host ""
@@ -140,4 +163,6 @@ Write-Host "  Block remote IP       :  New-NetFirewallRule -DisplayName 'IR-Bloc
 Write-Host "  Export to CSV         :  Get-NetTCPConnection | Export-Csv -Path C:\IR\connections.csv -NoTypeInformation" -ForegroundColor White
 Write-Host ""
 Write-Host ("  " + ("-" * 95)) -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  Window will stay open. Type 'exit' to close or close manually." -ForegroundColor DarkCyan
 Write-Host ""
