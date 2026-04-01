@@ -34,7 +34,7 @@ if (-not $isAdmin) {
     exit
 }
 
-$TRUSTED_PORTS   = @(80, 443, 53, 123)
+$TRUSTED_PORTS   = @(443, 53, 123)
 $SUSPECT_PORTS   = @(4444, 1337, 31337, 8080, 8888, 9001, 6666, 6667, 1234)
 $LOOPBACK_PREFIX = @('127.', '::1', '0.0.0.0')
 
