@@ -5,6 +5,10 @@
 | ---------------------- | ---------------------------- |
 | DC IP                  | 10.10.10.100 or 10.10.10.150 |
 | Ubuntu (Update) Server | 10.10.10.175                 |
+
+
+
+
 Stage 1:
  Attacker gaining unauthorized access to Ubuntu Server or impersonating IP Address.
 Stage 2: 
