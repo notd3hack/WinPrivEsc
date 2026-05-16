@@ -9,12 +9,18 @@
 
 
 
-Stage 1:
+
+**Stage 1:**
  Attacker gaining unauthorized access to Ubuntu Server or impersonating IP Address.
-Stage 2: 
+
+
+**Stage 2:** 
  Attacker creating `beacon.dll` and rename as `component.dll` to replace legit component
-Stage 3:
+
+
+**Stage 3:**
  User procedures update and attacker gaining access Windows Machine
+
 
 
 ### Service (Basic Program With Tray Icon not a Win32_Service) 
