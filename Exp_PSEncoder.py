@@ -16,7 +16,7 @@ def print_banner():
 ┏╋┏┓┏┓┃╋┣┓┃┃┃┃   
 ┛┗┗ ┗┻┗┗┛┗┗┛┣┛ 
 
-  [🔬] Researched by d3hvck v2.1b
+  [+] Researched by d3hvck v2.1b
   [+] USAGE:
   [+] The program designed to use against Windows Labs, Do not use for illegal purpose
     If you want to encrypt command then use -c option

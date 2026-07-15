@@ -1,16 +1,3 @@
-<#
-.SYNOPSIS
-    Comprehensive scheduled task checker for standalone workstations
-.DESCRIPTION
-    Checks all scheduled tasks, their actions, and verifies security context
-    with special attention to user-configured and hidden tasks
-.NOTES
-    Version     : 1.1
-    Author      : d3hvck
-    Created     : $(Get-Date)
-    Requires    : PowerShell 5.1+, Admin rights
-#>
-
 $reportPath = "$env:USERPROFILE\Desktop\Workstation_Tasks_Report_$(Get-Date -Format 'yyyyMMdd_HHmm').html"
 $highRiskPaths = @("$env:APPDATA", "$env:LOCALAPPDATA", "C:\Temp", "Downloads")
 

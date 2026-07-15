@@ -1,15 +1,3 @@
-<#
-.SYNOPSIS
-    Comprehensive service checker for standalone workstations
-.DESCRIPTION
-    Checks all services, their executables, and verifies digital signatures
-    with special attention to user-configured and third-party services
-.NOTES
-    Version     : 1.1
-    Author      : d3hvck
-    Created     : $(Get-Date)
-    Requires    : PowerShell 5.1+, Admin rights
-#>
 
 # Configuration
 $reportPath = "$env:USERPROFILE\Desktop\Workstation_Services_Report_$(Get-Date -Format 'yyyyMMdd_HHmm').html"
