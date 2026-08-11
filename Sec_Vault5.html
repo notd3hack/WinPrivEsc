@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault5 - Web UI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+/*  cox deyisiklik eleme heleki yaxsi isliyir */
+/* last edit 11 aug 2026 05:12 */
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1e293b;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 880px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            padding: 30px 35px;
+            transition: all 0.2s;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .app-title {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+        }
+
+        .profile-toggle {
+            font-size: 14px;
+            color: #3b82f6;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.15s;
+        }
+
+        .profile-toggle:hover {
+            color: #1e40af;
+        }
+
+        .profile-toggle .arrow {
+            display: inline-block;
+            transition: transform 0.25s ease;
+            font-size: 12px;
+        }
+
+        .profile-toggle .arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .profile-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-top: 10px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+            width: 100%;
+        }
+
+        .profile-card.open {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 14px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .profile-handle {
+            font-size: 14px;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        .profile-details {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .profile-details .role {
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .profile-details .company {
+            color: #3b82f6;
+        }
+
+        .profile-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 16px;
+            background: #0f172a;
+            color: white;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .profile-link:hover {
+            background: #1e293b;
+        }
+
+        .app-sub {
+            font-size: 14px;
+            color: #64748b;
+            border-bottom: 1px solid #e9edf2;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .app-sub span {
+            background: #f1f5f9;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #334155;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 22px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: #0f172a;
+        }
+
+        .tab-btn.active {
+            color: #0f172a;
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .panel {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+
+        .panel.show {
+            display: block;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0.3;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 22px 0 10px 0;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .field-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .field-block-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #ffffff;
+            transition: border 0.15s, background 0.15s;
+        }
+
+        .drop-zone:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .drop-zone input {
+            display: none;
+        }
+
+        .drop-zone-text {
+            font-size: 15px;
+            color: #475569;
+        }
+
+        .drop-zone-text strong {
+            display: block;
+            font-size: 17px;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .file-info {
+            display: none;
+            background: #e6f0ff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .file-info.show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-info .fname {
+            font-weight: 500;
+        }
+
+        .file-info .fsize {
+            color: #475569;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            color: #334155;
+            margin-bottom: 3px;
+        }
+
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d9e6;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+            transition: border 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+        }
+
+        .field input:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .algo-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 8px 0 12px 0;
+        }
+
+        .algo-btn {
+            padding: 6px 14px;
+            border: 1px solid #d1d9e6;
+            border-radius: 30px;
+            background: white;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .algo-btn:hover {
+            border-color: #94a3b8;
+        }
+
+        .algo-btn.active {
+            background: #0f172a;
+            color: white;
+            border-color: #0f172a;
+        }
+
+        .btn-execute {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: inherit;
+        }
+
+        .btn-execute:hover {
+            background: #2563eb;
+        }
+
+        .btn-execute:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-dl {
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #d1d9e6;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: inherit;
+        }
+
+        .btn-dl:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px solid #d1d9e6;
+            border-radius: 30px;
+            padding: 3px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .btn-copy:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .progress-wrap {
+            display: none;
+            margin: 12px 0 6px 0;
+        }
+
+        .progress-wrap.show {
+            display: block;
+        }
+
+        .progress-track {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #3b82f6;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .status {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .output-section {
+            display: none;
+            margin-top: 18px;
+        }
+
+        .output-section.show {
+            display: block;
+        }
+
+        .key-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .key-box.highlight {
+            border-color: #3b82f6;
+            border-width: 2px;
+        }
+
+        .key-box-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .key-value {
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            font-size: 13px;
+            word-break: break-all;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            max-height: 100px;
+            overflow-y: auto;
+            color: #0f172a;
+        }
+
+        .key-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .hash-val {
+            font-family: ui-monospace, 'SF Mono', monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .hash-val.ok {
+            color: #166534;
+        }
+
+        .hash-val.fail {
+            color: #991b1b;
+        }
+
+        .footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 18px;
+            margin-top: 28px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        @media (max-width: 620px) {
+            .container {
+                padding: 18px 16px;
+            }
+            .field-row,
+            .key-grid {
+                grid-template-columns: 1fr;
+            }
+            .app-header {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .app-sub {
+                flex-direction: column;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="app-header">
+            <div class="app-title">Vault5 - Web UI</div>
+            <div class="profile-toggle" onclick="toggleProfile()">
+                <span>Researched by d3hack</span>
+                <span class="arrow" id="profileArrow">▾</span>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card" id="profileCard">
+            <div class="profile-name">Abbas d3hack Aghayev</div>
+            <div class="profile-handle">@notd3hack · he/him</div>
+            <div class="profile-details">
+                <div><span class="role">Offensive Security Engineer</span> @ <span class="company">VulnCorp</span></div>
+                <div>Advanced Adversary Emulation / Offensive Security Research</div>
+                <div>Exploit Developer and Malware Researcher @ <span class="company">VulnLab</span></div>
+            </div>
+            <a class="profile-link" href="https://github.com/notd3hack" target="_blank">View GitHub Profile</a>
+        </div>
+
+        <div class="app-sub">
+            <span>Three-Factor Authentication</span>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('encrypt',this)">Encrypt</button>
+            <button class="tab-btn" onclick="switchTab('decrypt',this)">Decrypt</button>
+        </div>
+
+        <!-- ENCRYPT PANEL -->
+        <div id="panel-encrypt" class="panel show">
+
+            <div class="section-title">Source File</div>
+            <div class="field-block">
+                <div class="field-block-title">Select Document</div>
+                <div class="drop-zone" id="enc-drop" onclick="document.getElementById('enc-file').click()">
+                    <div class="drop-zone-text">
+                        <strong>Drop file here or click to browse</strong>
+                        Any file type accepted
+                    </div>
+                    <input type="file" id="enc-file" onchange="handleEncFile(this)">
+                </div>
+                <div class="file-info" id="enc-file-info">
+                    <span class="fname" id="enc-fname"></span>
+                    <span class="fsize" id="enc-fsize"></span>
+                </div>
+            </div>
+
+            <div class="section-title">Key Generation</div>
+            <div class="field-block">
+                <div class="field-block-title">Passkey and Salt</div>
+                <div style="font-size:13px; color:#475569; margin-bottom:4px;">Cipher suite</div>
+                <div class="algo-row">
+                    <div class="algo-btn active" onclick="setAlgo('AES-GCM',this)">AES-GCM-256</div>
+                    <div class="algo-btn" onclick="setAlgo('AES-CBC',this)">AES-CBC-256</div>
+                    <div class="algo-btn" onclick="setAlgo('XChaCha',this)">ChaCha20-Poly1305</div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Passkey (factor 1)</label>
+                        <input type="password" id="enc-pass" placeholder="Enter strong passphrase" oninput="checkEncReady()">
+                    </div>
+                    <div class="field">
+                        <label>Salt (factor 2)</label>
+                        <input type="text" id="enc-salt" placeholder="e.g. OP-KINGFISHER-2024" oninput="checkEncReady()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Execute Encryption</div>
+            <div class="field-block">
+                <div class="field-block-title">Derive Key and Encrypt</div>
+                <button class="btn-execute" id="enc-btn" onclick="doEncrypt()" disabled>Derive Key and Encrypt</button>
+                <div class="progress-wrap" id="enc-progress">
+                    <div class="progress-track"><div class="progress-fill" id="enc-bar"></div></div>
+                    <div class="progress-text" id="enc-progress-text">Standing by...</div>
+                </div>
+                <div class="status" id="enc-status"></div>
+                <div class="output-section" id="enc-output">
+                    <div class="key-box highlight">
+                        <div class="key-box-label">
+                            <span>Private Key (factor 3) – store securely</span>
+                            <button class="btn-copy" onclick="copyText('out-private-key')">Copy</button>
+                        </div>
+                        <div class="key-value" id="out-private-key"></div>
+                    </div>
+                    <div class="key-grid">
+                        <div class="key-box">
+                            <div class="key-box-label">
+                                Algorithm and Parameters
+                                <button class="btn-copy" onclick="copyText('out-algo')">Copy</button>
+                            </div>
+                            <div class="key-value" id="out-algo"></div>
+                        </div>
+                        <div class="key-box">
+                            <div class="key-box-label">
+                                SHA-256 Integrity Hash
+                                <button class="btn-copy" onclick="copyText('out-hash')">Copy</button>
+                            </div>
+                            <div class="key-value" id="out-hash"></div>
+                        </div>
+                    </div>
+                    <button class="btn-dl" onclick="downloadEncrypted()">Download Encrypted Payload (.d3obj)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DECRYPT PANEL -->
+        <div id="panel-decrypt" class="panel">
+
+            <div class="section-title">Encrypted File</div>
+            <div class="field-block">
+                <div class="field-block-title">Load .d3obj Payload</div>
+                <div class="drop-zone" id="dec-drop" onclick="document.getElementById('dec-file').click()">
+                    <div class="drop-zone-text">
+                        <strong>Load encrypted file</strong>
+                        Only .d3obj files
+                    </div>
+                    <input type="file" id="dec-file" accept=".d3obj" onchange="handleDecFile(this)">
+                </div>
+                <div class="file-info" id="dec-file-info">
+                    <span class="fname" id="dec-fname"></span>
+                    <span class="fsize" id="dec-fsize"></span>
+                </div>
+            </div>
+
+            <div class="section-title">Three-Factor Authentication</div>
+            <div class="field-block">
+                <div class="field-block-title">Present All Three Credentials</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Passkey (factor 1)</label>
+                        <input type="password" id="dec-pass" placeholder="Original passphrase">
+                    </div>
+                    <div class="field">
+                        <label>Salt (factor 2)</label>
+                        <input type="text" id="dec-salt" placeholder="Original salt value">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Private Key (factor 3) – from encryption</label>
+                    <textarea id="dec-privkey" rows="3" placeholder="Paste the full Private Key hex string..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-title">Verify and Decrypt</div>
+            <div class="field-block">
+                <div class="field-block-title">Execute Decryption</div>
+                <button class="btn-execute" id="dec-btn" onclick="doDecrypt()">Verify Credentials and Decrypt</button>
+                <div class="progress-wrap" id="dec-progress">
+                    <div class="progress-track"><div class="progress-fill" id="dec-bar"></div></div>
+                    <div class="progress-text" id="dec-progress-text">Standing by...</div>
+                </div>
+                <div class="status" id="dec-status"></div>
+                <div class="output-section" id="dec-output">
+                    <div class="key-box">
+                        <div class="key-box-label">Integrity Verification (SHA-256)</div>
+                        <div class="hash-val" id="dec-hash-result"></div>
+                    </div>
+                    <button class="btn-dl" id="dec-dl-btn" onclick="downloadDecrypted()">Download Decrypted Document</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Basic Encryption/Decryption tool for Web Deployment
+        </div>
+
+    </div>
+
+    <script>
+        var encFileData = null;
+        var encFileName = null;
+        var decFileData = null;
+        var encryptedBlob = null;
+        var decryptedBlob = null;
+        var selectedAlgo = 'AES-GCM';
+        var decryptedOriginalName = 'decrypted_file'; // to preserve original name+extension
+
+        function $(id) { return document.getElementById(id); }
+
+        function toggleProfile() {
+            var card = $('profileCard');
+            var arrow = $('profileArrow');
+            card.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('show'); });
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            $('panel-' + tab).classList.add('show');
+            btn.classList.add('active');
+        }
+
+        function setAlgo(algo, btn) {
+            selectedAlgo = algo;
+            document.querySelectorAll('.algo-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function handleEncFile(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                encFileData = e.target.result;
+                encFileName = file.name;
+                $('enc-fname').textContent = file.name;
+                $('enc-fsize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+                $('enc-file-info').classList.add('show');
+                checkEncReady();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function checkEncReady() {
+            var pass = $('enc-pass').value.trim();
+            var salt = $('enc-salt').value.trim();
+            $('enc-btn').disabled = !(encFileData && pass.length > 0 && salt.length > 0);
+        }
+
+        function handleDecFile(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                decFileData = e.target.result;
+                $('dec-fname').textContent = file.name;
+                $('dec-fsize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+                $('dec-file-info').classList.add('show');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function setStatus(id, type, msg) {
+            var el = $(id);
+            el.className = 'status show ' + type;
+            el.textContent = msg;
+        }
+
+        function showProg(id) { $(id).classList.add('show'); }
+
+        function hideProg(id) { $(id).classList.remove('show'); }
+
+        function progress(barId, textId, pct, msg) {
+            $(barId).style.width = pct + '%';
+            $(textId).textContent = msg;
+        }
+
+        function copyText(id) {
+            var text = $(id).textContent;
+            navigator.clipboard.writeText(text).catch(function() {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            });
+        }
+
+        function bufToHex(buf) {
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function hexToBuf(hex) {
+            var bytes = new Uint8Array(hex.length / 2);
+            for (var i = 0; i < bytes.length; i++) {
+                bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+            }
+            return bytes.buffer;
+        }
+
+        function bufToB64(buf) {
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+        }
+
+        function b64ToBuf(b64) {
+            var str = atob(b64);
+            var buf = new Uint8Array(str.length);
+            for (var i = 0; i < str.length; i++) {
+                buf[i] = str.charCodeAt(i);
+            }
+            return buf.buffer;
+        }
+
+        async function sha256hex(data) {
+            var hash = await crypto.subtle.digest('SHA-256', data);
+            return bufToHex(hash);
+        }
+
+        async function deriveAESKey(passkey, salt, algo) {
+            var enc = new TextEncoder();
+            var keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(passkey),
+                'PBKDF2',
+                false,
+                ['deriveKey']
+            );
+            var isAES = (algo === 'AES-GCM' || algo === 'AES-CBC');
+            var name = isAES ? 'AES-GCM' : 'ChaCha20-Poly1305';
+            if (algo === 'AES-CBC') name = 'AES-CBC';
+            return await crypto.subtle.deriveKey({
+                    name: 'PBKDF2',
+                    salt: enc.encode(salt),
+                    iterations: 300000,
+                    hash: 'SHA-256'
+                },
+                keyMaterial, {
+                    name: name,
+                    length: 256
+                },
+                true,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function exportKeyAsHex(key) {
+            var raw = await crypto.subtle.exportKey('raw', key);
+            return bufToHex(raw);
+        }
+
+        async function importKeyFromHex(hex, algo) {
+            var buf = hexToBuf(hex);
+            var isAES = (algo === 'AES-GCM' || algo === 'AES-CBC');
+            var name = isAES ? 'AES-GCM' : 'ChaCha20-Poly1305';
+            if (algo === 'AES-CBC') name = 'AES-CBC';
+            return await crypto.subtle.importKey(
+                'raw',
+                buf, { name: name, length: 256 },
+                false,
+                ['decrypt']
+            );
+        }
+
+        async function doEncrypt() {
+            if (!encFileData) {
+                setStatus('enc-status', 'error', 'No file selected.');
+                return;
+            }
+            var pass = $('enc-pass').value.trim();
+            var salt = $('enc-salt').value.trim();
+            if (!pass || !salt) {
+                setStatus('enc-status', 'error', 'Passkey and Salt are required.');
+                return;
+            }
+
+            $('enc-btn').disabled = true;
+            $('enc-output').classList.remove('show');
+            setStatus('enc-status', '', '');
+            showProg('enc-progress');
+
+            try {
+                progress('enc-bar', 'enc-progress-text', 5, 'Starting...');
+                var algoName = selectedAlgo;
+                var isAES = (algoName === 'AES-GCM' || algoName === 'AES-CBC');
+                var cipherName = isAES ? 'AES-GCM' : 'ChaCha20-Poly1305';
+                if (algoName === 'AES-CBC') cipherName = 'AES-CBC';
+
+                progress('enc-bar', 'enc-progress-text', 15, 'Deriving key...');
+                var key = await deriveAESKey(pass, salt, algoName);
+
+                progress('enc-bar', 'enc-progress-text', 30, 'Exporting private key...');
+                var privKeyHex = await exportKeyAsHex(key);
+
+                progress('enc-bar', 'enc-progress-text', 45, 'Hashing file...');
+                var fileHash = await sha256hex(encFileData);
+
+                progress('enc-bar', 'enc-progress-text', 60, 'Generating IV...');
+                var ivLen = (algoName === 'AES-CBC') ? 16 : 12;
+                var iv = crypto.getRandomValues(new Uint8Array(ivLen));
+
+                var algoParams = {};
+                if (algoName === 'AES-GCM') {
+                    algoParams = { name: 'AES-GCM', iv: iv };
+                } else if (algoName === 'AES-CBC') {
+                    algoParams = { name: 'AES-CBC', iv: iv };
+                } else {
+                    algoParams = { name: 'ChaCha20-Poly1305', iv: iv };
+                }
+
+                progress('enc-bar', 'enc-progress-text', 75, 'Encrypting...');
+                var encrypted = await crypto.subtle.encrypt(algoParams, key, encFileData);
+
+                var meta = {
+                    algo: algoName,
+                    salt: salt,
+                    iv: bufToB64(iv.buffer),
+                    originalName: encFileName || 'unknown',
+                    hash: fileHash
+                };
+                var metaStr = JSON.stringify(meta);
+                var metaBytes = new TextEncoder().encode(metaStr);
+                var metaLen = new Uint32Array([metaBytes.length]);
+
+                var combined = new Uint8Array(4 + metaBytes.length + encrypted.byteLength);
+                combined.set(new Uint8Array(metaLen.buffer), 0);
+                combined.set(metaBytes, 4);
+                combined.set(new Uint8Array(encrypted), 4 + metaBytes.length);
+
+                encryptedBlob = new Blob([combined], { type: 'application/octet-stream' });
+
+                progress('enc-bar', 'enc-progress-text', 100, 'Done.');
+                setTimeout(function() { hideProg('enc-progress'); }, 500);
+
+                $('out-private-key').textContent = privKeyHex;
+                $('out-algo').textContent = algoName + ' | PBKDF2 300k | IV ' + (algoName === 'AES-CBC' ? '16' :
+                '12') + ' bytes';
+                $('out-hash').textContent = fileHash;
+                $('enc-output').classList.add('show');
+                setStatus('enc-status', 'success', 'Encryption successful. Private key generated.');
+
+            } catch (err) {
+                hideProg('enc-progress');
+                setStatus('enc-status', 'error', 'Error: ' + err.message);
+            } finally {
+                $('enc-btn').disabled = false;
+            }
+        }
+
+        function downloadEncrypted() {
+            if (!encryptedBlob) return;
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(encryptedBlob);
+            a.download = (encFileName || 'payload') + '.d3obj';
+            a.click();
+        }
+
+        async function doDecrypt() {
+            if (!decFileData) {
+                setStatus('dec-status', 'error', 'No encrypted file loaded.');
+                return;
+            }
+            var pass = $('dec-pass').value.trim();
+            var salt = $('dec-salt').value.trim();
+            var privKeyHex = $('dec-privkey').value.trim();
+            if (!pass || !salt || !privKeyHex) {
+                setStatus('dec-status', 'error', 'All three factors are required.');
+                return;
+            }
+
+            $('dec-btn').disabled = true;
+            $('dec-output').classList.remove('show');
+            setStatus('dec-status', '', '');
+            showProg('dec-progress');
+
+            try {
+                progress('dec-bar', 'dec-progress-text', 10, 'Parsing file...');
+                var data = new Uint8Array(decFileData);
+                if (data.length < 4) throw new Error('File too small');
+                var metaLen = new Uint32Array(data.buffer, 0, 1)[0];
+                if (metaLen > data.length - 4) throw new Error('Invalid format');
+                var metaBytes = data.slice(4, 4 + metaLen);
+                var metaStr = new TextDecoder().decode(metaBytes);
+                var meta = JSON.parse(metaStr);
+                var encryptedData = data.slice(4 + metaLen);
+
+                // Store original name for download
+                decryptedOriginalName = meta.originalName || 'decrypted_file';
+
+                progress('dec-bar', 'dec-progress-text', 25, 'Verifying private key...');
+                var algoName = meta.algo || 'AES-GCM';
+                var derivedKey = await deriveAESKey(pass, salt, algoName);
+                var derivedHex = await exportKeyAsHex(derivedKey);
+
+                progress('dec-bar', 'dec-progress-text', 40, 'Checking key match...');
+                if (derivedHex !== privKeyHex) {
+                    hideProg('dec-progress');
+                    setStatus('dec-status', 'error', 'Private key does not match Passkey and Salt.');
+                    $('dec-btn').disabled = false;
+                    return;
+                }
+
+                progress('dec-bar', 'dec-progress-text', 55, 'Importing key...');
+                var key = await importKeyFromHex(privKeyHex, algoName);
+                var iv = b64ToBuf(meta.iv);
+                var algoParams = {};
+                if (algoName === 'AES-GCM') {
+                    algoParams = { name: 'AES-GCM', iv: new Uint8Array(iv) };
+                } else if (algoName === 'AES-CBC') {
+                    algoParams = { name: 'AES-CBC', iv: new Uint8Array(iv) };
+                } else {
+                    algoParams = { name: 'ChaCha20-Poly1305', iv: new Uint8Array(iv) };
+                }
+
+                progress('dec-bar', 'dec-progress-text', 70, 'Decrypting...');
+                var decrypted = await crypto.subtle.decrypt(algoParams, key, encryptedData);
+
+                progress('dec-bar', 'dec-progress-text', 85, 'Verifying integrity...');
+                var hash = await sha256hex(decrypted);
+                var expectedHash = meta.hash || '';
+                var hashEl = $('dec-hash-result');
+                if (hash === expectedHash) {
+                    hashEl.className = 'hash-val ok';
+                    hashEl.textContent = 'Integrity OK - SHA-256: ' + hash;
+                } else {
+                    hashEl.className = 'hash-val fail';
+                    hashEl.textContent = 'Integrity FAIL - Expected: ' + expectedHash + ' | Got: ' + hash;
+                }
+
+                decryptedBlob = new Blob([decrypted], { type: 'application/octet-stream' });
+
+                progress('dec-bar', 'dec-progress-text', 100, 'Done.');
+                setTimeout(function() { hideProg('dec-progress'); }, 500);
+
+                $('dec-output').classList.add('show');
+                setStatus('dec-status', 'success', 'Decryption successful. Integrity verified.');
+
+            } catch (err) {
+                hideProg('dec-progress');
+                setStatus('dec-status', 'error', 'Decryption error: ' + err.message);
+            } finally {
+                $('dec-btn').disabled = false;
+            }
+        }
+
+        function downloadDecrypted() {
+            if (!decryptedBlob) return;
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(decryptedBlob);
+            // Use the original file name (with extension) if available
+            a.download = decryptedOriginalName || 'decrypted_file';
+            a.click();
+        }
+
+        checkEncReady();
+    </script>
+
+</body>
+</html>
+
+<!-- normal dizayner tapmaz lazimdi pox gunde gorunur---->
