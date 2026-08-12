@@ -1096,7 +1096,7 @@
             if (!decryptedBlob) return;
             var a = document.createElement('a');
             a.href = URL.createObjectURL(decryptedBlob);
-            // Use the original file name (with extension) if available
+            // original file name (with extension) | fixed
             a.download = decryptedOriginalName || 'decrypted_file';
             a.click();
         }
