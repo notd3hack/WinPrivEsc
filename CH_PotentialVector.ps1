@@ -8,7 +8,7 @@
 ┻┛┗┛┛┗┛┗┗┛┛┗┛          
 
 USAGE: first click RAW button and copy link above
-irm <github-raw-link> | iex -ErrorAction SilentlyContinue                
+irm <github-raw-link> | iex             
 irm is short for Invoke-RestMethod. 
 It will download a script from that website. 
 iex is short for Invoke-Expression. 
