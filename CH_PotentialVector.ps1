@@ -1,3 +1,22 @@
+<#
+ ┓      ┓       ┓  ┓   
+┏┫┏┓┓┏┏┓┃┏┓┏┓┏┓┏┫  ┣┓┓┏
+┗┻┗ ┗┛┗ ┗┗┛┣┛┗ ┗┻  ┗┛┗┫
+           ┛          ┛
+┳┓┏┓┓┏┏┓┏┓┓┏┓          
+┃┃ ┫┣┫┣┫┃ ┃┫           
+┻┛┗┛┛┗┛┗┗┛┛┗┛          
+
+USAGE: first click RAW button and copy link above
+irm <github-raw-link> | iex -ErrorAction SilentlyContinue                
+irm is short for Invoke-RestMethod. 
+It will download a script from that website. 
+iex is short for Invoke-Expression. 
+It will run the script
+
+#>
+
+
 
 function Write-Info {
     Write-Host "[*] $($args[0])" -ForegroundColor Cyan
@@ -100,10 +119,65 @@ function Test-DomainGroupMembership {
     catch { return $false }
 }
 
+# burani cox barmaqlama heleki isliyir
+function ConvertTo-AccessMask {
+    param([string]$permStr)
+    if ($permStr -match '^0x') {
+        return [Convert]::ToUInt32($permStr, 16)
+    }
+    elseif ($permStr -match '^\d+$') {
+        return [Convert]::ToUInt32($permStr, 10)
+    }
+    else {
+        $map = @{
+            'CC' = 0x2; 'DC' = 0x4; 'LC' = 0x8; 'SW' = 0x10
+            'RP' = 0x20; 'WP' = 0x40; 'DT' = 0x80; 'LO' = 0x100
+            'CR' = 0x200; 'GA' = 0xF01FF; 'WD' = 0x10000
+            'WO' = 0x20000; 'SD' = 0x40000; 'RC' = 0x20000
+        }
+        $mask = 0
+        $i = 0
+        while ($i -lt $permStr.Length) {
+            $matched = $false
+            foreach ($key in $map.Keys | Sort-Object Length -Descending) {
+                if ($permStr.Substring($i).StartsWith($key)) {
+                    $mask = $mask -bor $map[$key]
+                    $i += $key.Length
+                    $matched = $true
+                    break
+                }
+            }
+            if (-not $matched) { $i++ }
+        }
+        return $mask
+    }
+}
+
+# oxunula bilinsin deye
+function Get-HumanReadableServiceRights {
+    param([UInt32]$mask)
+    $rights = @()
+    if ($mask -band 0x1) { $rights += "SERVICE_QUERY_CONFIG" }
+    if ($mask -band 0x2) { $rights += "SERVICE_CHANGE_CONFIG" }
+    if ($mask -band 0x4) { $rights += "SERVICE_QUERY_STATUS" }
+    if ($mask -band 0x8) { $rights += "SERVICE_ENUMERATE_DEPENDENTS" }
+    if ($mask -band 0x10) { $rights += "SERVICE_START" }
+    if ($mask -band 0x20) { $rights += "SERVICE_STOP" }
+    if ($mask -band 0x40) { $rights += "SERVICE_PAUSE_CONTINUE" }
+    if ($mask -band 0x80) { $rights += "SERVICE_INTERROGATE" }
+    if ($mask -band 0x100) { $rights += "SERVICE_USER_DEFINED_CONTROL" }
+    if ($mask -band 0xF01FF) { $rights += "SERVICE_ALL_ACCESS" }
+    return $rights -join ", "
+}
+
 Clear-Host
 Write-Host "============================================================" -ForegroundColor White
-Write-Host "    WINDOWS PRIVILEGE ESCALATION SECURITY AUDIT" -ForegroundColor White
-Write-Host "    (Checks 21 Common Vectors)" -ForegroundColor White
+Write-Host "                                                            " -ForegroundColor White
+Write-Host "        WINDOWS POTENTIAL ATTACK VECTOR DETECTION           " -ForegroundColor White
+Write-Host "                                                            " -ForegroundColor White
+Write-Host "============================================================" -ForegroundColor White
+Write-Host "                               developed by d3hack@VulnLab  " -ForegroundColor White
+Write-Host "                       tested @ Win 11 25H2 ver 26200.9278  " -ForegroundColor White
 Write-Host "============================================================" -ForegroundColor White
 Write-Host "User: $((Get-CurrentUser))" -ForegroundColor Gray
 Write-Host "Admin: $(Test-AdminRights)" -ForegroundColor Gray
@@ -218,7 +292,7 @@ foreach ($svc in $services) {
     if (Test-RegistryKeyWriteable $regPath.Replace("HKLM:\","")) {
         $riskyRegServices += $svc.Name
     }
-    if ($riskyRegServices.Count -ge 10) { break } # Limit output
+    if ($riskyRegServices.Count -ge 10) { break }
 }
 if ($riskyRegServices.Count -gt 0) {
     Write-Bad "  Writeable service registry keys found (examples): $($riskyRegServices -join ', ')"
@@ -226,7 +300,6 @@ if ($riskyRegServices.Count -gt 0) {
     Write-Good "  No obviously weak service registry permissions found."
 }
 
-# 13. Unquoted Paths
 Write-Separator
 Write-Info "13. Checking for Unquoted Service Paths (Windows system services ignored)"
 $unquoted = Get-WmiObject -Class Win32_Service | Where-Object {
@@ -250,21 +323,90 @@ Write-Info "14. Insecure GUI Applications"
 Write-Warn "  Manual check required: Look for 'AlwaysNotify' or 'Interactive Services' running as SYSTEM."
 
 Write-Separator
-Write-Info "15. Checking Weak Service Permissions (Authenticated Users Write)"
-$weakServices = @()
-$svcList = Get-WmiObject -Class Win32_Service | Select-Object -First 30 # Limit to avoid hanging
-foreach ($svc in $svcList) {
-    try {
-        $sd = sc.exe sdshow $svc.Name
-        if ($sd -match "A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AU" -or $sd -match "A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BU") {
-            $weakServices += $svc.Name
+Write-Info "15. Checking Weak Service Permissions (SERVICE_CHANGE_CONFIG for current user / Everyone)"
+
+$currentUserSid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$everyoneSid = "S-1-1-0"
+$targetSids = @($currentUserSid, $everyoneSid)
+$everyoneAliases = @("WD", "Everyone")
+$vulnServices = @()
+
+$allServices = Get-Service | Select-Object -ExpandProperty Name
+
+foreach ($svc in $allServices) {
+    $sddl = & sc.exe sdshow $svc 2>$null
+    if ($LASTEXITCODE -ne 0) { continue }
+
+    $sddlClean = $sddl -replace '^D:', ''
+    $aces = $sddlClean -split '\)\(' | ForEach-Object { $_.Trim('(', ')') }
+
+    $foundVuln = $false
+    $vulnerableACE = $null
+    $sidWithRight = $null
+    $permMask = 0
+
+    foreach ($ace in $aces) {
+        if ($ace -notmatch '^A;;') { continue }
+
+        $fields = $ace -split ';'
+        $permStr = $fields[2]
+        $sid = $fields[5]
+
+        $permValue = ConvertTo-AccessMask -permStr $permStr
+
+        if (($permValue -band 0x2) -eq 0x2) {
+            $isTarget = $false
+            if ($sid -eq $currentUserSid) {
+                $isTarget = $true
+            } elseif ($sid -in $targetSids -or $sid -in $everyoneAliases) {
+                $isTarget = $true
+            }
+
+            if ($isTarget) {
+                $vulnerableACE = $ace
+                $sidWithRight = $sid
+                $permMask = $permValue
+                $foundVuln = $true
+                break
+            }
         }
-    } catch {}
+    }
+
+    if ($foundVuln) {
+        $svcObj = Get-Service -Name $svc
+        $binPath = (Get-CimInstance Win32_Service -Filter "Name='$svc'").PathName
+        $startType = $svcObj.StartType
+
+        $vulnServices += [PSCustomObject]@{
+            ServiceName = $svc
+            ACE         = $vulnerableACE
+            PermMask    = $permMask
+            SID         = $sidWithRight
+            BinaryPath  = $binPath
+            StartType   = $startType
+        }
+    }
 }
-if ($weakServices.Count -gt 0) {
-    Write-Bad "  Weak service permissions (modifiable by users): $($weakServices -join ', ')"
+
+if ($vulnServices.Count -gt 0) {
+    Write-Bad "  Found $($vulnServices.Count) services with SERVICE_CHANGE_CONFIG granted to current user or Everyone:"
+    Write-Host "  " -NoNewline
+    Write-Warn "  EXPLANATION: SERVICE_CHANGE_CONFIG allows the holder to modify the service's configuration, including its binary path and start type. An attacker can change the executable to a malicious program and restart the service (or wait for a reboot) to execute code with the service's privileges (often SYSTEM)."
+    Write-Host ""
+
+    foreach ($v in $vulnServices) {
+        Write-Host "  Service: $($v.ServiceName)" -ForegroundColor Yellow
+        Write-Host "    Binary Path: $($v.BinaryPath)" -ForegroundColor Gray
+        Write-Host "    Start Type: $($v.StartType)" -ForegroundColor Gray
+        $grantedRights = Get-HumanReadableServiceRights -mask $v.PermMask
+        Write-Host "    Granted Rights: $grantedRights" -ForegroundColor Gray
+        Write-Host "    Granted to SID: $($v.SID) (Current user or Everyone)" -ForegroundColor Gray
+        Write-Host "    Raw ACE: $($v.ACE)" -ForegroundColor DarkGray
+        Write-Host "    RISK: This service can be reconfigured by the current user or Everyone. An attacker can change the ImagePath to a malicious executable and restart the service to gain SYSTEM privileges." -ForegroundColor Red
+        Write-Host ""
+    }
 } else {
-    Write-Good "  No weak service permissions found in the first 30 services."
+    Write-Good "  No vulnerable services found (SERVICE_CHANGE_CONFIG not granted to current user or Everyone)."
 }
 
 Write-Separator
@@ -273,7 +415,6 @@ try {
     $tasks = schtasks /query /fo list /v
     $foundWriteableTask = $false
     if ($tasks -match "TaskName") {
-        # Simple heuristic: check if user can write to task executable paths
         $lines = $tasks -split "`r`n"
         foreach ($line in $lines) {
             if ($line -match "Task To Run:\s+(.+)$") {
@@ -307,7 +448,6 @@ if ($vulnerableBuilds -contains $build) {
     Write-Good "  Build $build is not in the common vulnerable list."
 }
 
-# SamAccountName Spoofing (CVE-2021-42278)
 Write-Separator
 Write-Info "18. Checking SamAccountName Spoofing (CVE-2021-42278/noPac)"
 if (Check-Hotfix "KB5008383") {
@@ -316,7 +456,6 @@ if (Check-Hotfix "KB5008383") {
     Write-Warn "  KB5008383 is NOT installed. Domain may be vulnerable to noPac."
 }
 
-# SpoolFool (CVE-2022-21999)
 Write-Separator
 Write-Info "19. Checking SpoolFool (CVE-2022-21999)"
 $spooler = Get-Service -Name Spooler -ErrorAction SilentlyContinue
@@ -330,7 +469,6 @@ if ($spooler -and $spooler.Status -eq "Running") {
     Write-Good "  Print Spooler is not running."
 }
 
-# PrintNightmare (CVE-2021-1675 / CVE-2021-34527)
 Write-Separator
 Write-Info "20. Checking PrintNightmare"
 if ($spooler -and $spooler.Status -eq "Running") {
