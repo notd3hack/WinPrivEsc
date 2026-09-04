@@ -9,6 +9,7 @@
 
 # PowerShell Script: Add-Exclusion.ps1
 # LAB PURPOSE ONLY
+
 #>
 
 $version = Get-Random -Minimum 1 -Maximum 5

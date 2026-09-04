@@ -1,3 +1,9 @@
+<#
+Buda AI ile yazilmis scriptdir. Bu script workstationlardaki service lari yoxlayir. 
+Hansi serviceler unquoted path ile calisir, hansi serviceler userin appdata, localappdata, temp, downloads kimi high risk pathlerden calisir,
+hansi serviceler local user hesabindan calisir ve s. Bu scriptin neticesi html report olaraq desktopa yazilir.
+#>
+
 
 # Configuration
 $reportPath = "$env:USERPROFILE\Desktop\Workstation_Services_Report_$(Get-Date -Format 'yyyyMMdd_HHmm').html"

@@ -1,7 +1,7 @@
 ## OS Recon
 
 ```powershell
-# 1. Get basic system information
+# 1. Get basic system information 
 Get-ComputerInfo | Select-Object WindowsProductName, OsHardwareAbstractionLayer, WindowsVersion
 # Provides OS version, build number, and hardware abstraction layer details
 

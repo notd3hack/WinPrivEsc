@@ -1,6 +1,7 @@
 # VulnCorp AD Lab Setup Script - Simulates OSCP+ AD Vulnerabilities
 # Run as Domain Admin on your lab DC
 
+
 Import-Module ActiveDirectory
 
 # === 1. Create vulnerable users ===

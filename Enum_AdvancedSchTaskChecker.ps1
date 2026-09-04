@@ -1,6 +1,7 @@
 $reportPath = "$env:USERPROFILE\Desktop\Workstation_Tasks_Report_$(Get-Date -Format 'yyyyMMdd_HHmm').html"
 $highRiskPaths = @("$env:APPDATA", "$env:LOCALAPPDATA", "C:\Temp", "Downloads")
 
+
 $htmlHeader = @"
 <!DOCTYPE html>
 <html>

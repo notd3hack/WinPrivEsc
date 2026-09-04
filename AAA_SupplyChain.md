@@ -9,7 +9,6 @@
 
 
 
-
 **Stage 1:**
  Attacker gaining unauthorized access to Ubuntu Server or impersonating IP Address.
 

@@ -1,6 +1,6 @@
 # Active Directory Penetration Testing — OSCP/OSEP Study Guide
 > **Section 4.2 — Windows Infrastructure: Penetration Testing Active Directory**
-> Compiled for exam preparation. All commands use placeholder lab environment (VULN.local / 10.10.10.x).
+> Compiled for exam preparation. All commands use placeholder lab environment (VULN.local / 10.10.10.x)
 
 ---
 

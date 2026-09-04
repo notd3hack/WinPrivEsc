@@ -409,6 +409,7 @@ if ($vulnServices.Count -gt 0) {
     Write-Good "  No vulnerable services found (SERVICE_CHANGE_CONFIG not granted to current user or Everyone)."
 }
 
+# admin olmasa burda bi pox cixmir
 Write-Separator
 Write-Info "16. Checking Scheduled Tasks (writable actions)"
 try {
