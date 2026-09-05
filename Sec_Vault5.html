@@ -582,7 +582,6 @@
             </div>
         </div>
 
-        <!-- Profile Card -->
         <div class="profile-card" id="profileCard">
             <div class="profile-name">Abbas d3hack Aghayev</div>
             <div class="profile-handle">@notd3hack · he/him</div>
@@ -603,7 +602,6 @@
             <button class="tab-btn" onclick="switchTab('decrypt',this)">Decrypt</button>
         </div>
 
-        <!-- ENCRYPT PANEL -->
         <div id="panel-encrypt" class="panel show">
 
             <div class="section-title">Source File</div>
@@ -681,7 +679,6 @@
             </div>
         </div>
 
-        <!-- DECRYPT PANEL -->
         <div id="panel-decrypt" class="panel">
 
             <div class="section-title">Encrypted File</div>
@@ -751,7 +748,7 @@
         var encryptedBlob = null;
         var decryptedBlob = null;
         var selectedAlgo = 'AES-GCM';
-        var decryptedOriginalName = 'decrypted_file'; // to preserve original name+extension
+        var decryptedOriginalName = 'decrypted_file'; 
 
         function $(id) { return document.getElementById(id); }
 
@@ -1033,7 +1030,6 @@
                 var meta = JSON.parse(metaStr);
                 var encryptedData = data.slice(4 + metaLen);
 
-                // Store original name for download
                 decryptedOriginalName = meta.originalName || 'decrypted_file';
 
                 progress('dec-bar', 'dec-progress-text', 25, 'Verifying private key...');

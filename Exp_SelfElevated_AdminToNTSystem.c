@@ -21,6 +21,7 @@
 
 
 // It have flaws. Have to fix this sooner as possible
+// Warning!!! This code are untested. Please do not use it in production environment. Use it for educational purpose only.
 
 
 HRESULT CreateSystemTask(LPCWSTR exePath) {

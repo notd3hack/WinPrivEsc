@@ -24,16 +24,13 @@ $OutputPath = "$env:USERPROFILE\Desktop\AD_Enum_Reports"
 
 New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 
-# 1. 
 Get-ADUser -Filter * -Server $Domain -Properties * | 
     Export-Csv -Path "$OutputPath\01_All_Users.csv" -NoTypeInformation
 
-# 2. 
 Get-ADGroup -Filter * -Server $Domain -Properties * | 
     Select-Object Name, Description, @{Name="Members";Expression={$_.Members -join ";"}} | 
     Export-Csv -Path "$OutputPath\02_All_Groups.csv" -NoTypeInformation
 
-# 3. 
 $Report = @()
 Get-ADGroup -Filter * -Server $Domain | ForEach-Object {
     $Members = Get-ADGroupMember -Identity $_ -Server $Domain | 
