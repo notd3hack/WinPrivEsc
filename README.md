@@ -1,3 +1,6 @@
+> [!warning]
+> THIS REPOSITORY GONNA DELETE AT OCTOBER 2026
+
 <h1 align="left">Hey 👋 What's up?</h1>
 
 ###
