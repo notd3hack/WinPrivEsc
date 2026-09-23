@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IPv4 Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1321; --panel: #151E33; --panel-raised: #1A2540;
+    --border: #2A3655; --border-soft: #202B47;
+    --text: #E7ECF5; --text-dim: #8B96B3;
+    --amber: #F2A93B; --cyan: #5FD8C9; --red: #E8677D; --green: #7FD98A;
+    --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; min-height: 100%; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 44px 24px 80px; }
+  header { margin-bottom: 28px; border-bottom: 1px solid var(--border-soft); padding-bottom: 22px; }
+  h1 { font-family: var(--mono); font-size: 21px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--text-dim); font-size: 14px; max-width: 64ch; }
+
+  nav.tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border-soft); }
+  nav.tabs button {
+    font-family: var(--mono); font-size: 13px; background: none; border: none;
+    color: var(--text-dim); padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  nav.tabs button.active { color: var(--amber); border-bottom-color: var(--amber); }
+  nav.tabs button:hover:not(.active) { color: var(--text); }
+
+  section.tab { display: none; }
+  section.tab.active { display: block; }
+
+  .panel { background: var(--panel); border: 1px solid var(--border-soft); border-radius: 6px; padding: 22px; }
+  .grid2 { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .field-label { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; display: block; }
+  input[type="text"] {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text); font-family: var(--mono); font-size: 15px; padding: 10px 12px; outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--cyan); }
+  input[type="text"].invalid { border-color: var(--red); }
+  .row2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+  .err { color: var(--red); font-size: 13px; font-family: var(--mono); margin-top: 8px; min-height: 18px; }
+
+  button.action {
+    font-family: var(--mono); font-size: 13px; background: var(--panel-raised); border: 1px solid var(--border);
+    color: var(--cyan); padding: 9px 16px; border-radius: 4px; cursor: pointer; margin-top: 6px;
+  }
+  button.action:hover { border-color: var(--cyan); }
+  button.chip {
+    font-family: var(--mono); font-size: 13px; background: var(--panel-raised); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px; border-radius: 4px; cursor: pointer;
+  }
+  button.chip:hover { border-color: var(--cyan); color: var(--cyan); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chips-label { font-size: 13px; color: var(--text-dim); margin-top: 18px; }
+
+  .result-empty { color: var(--text-dim); font-size: 14px; padding: 36px 8px; text-align: center; }
+  .class-badge { display: flex; align-items: baseline; gap: 16px; margin-bottom: 18px; }
+  .class-letter { font-family: var(--mono); font-size: 40px; font-weight: 600; color: var(--amber); line-height: 1; }
+  .class-name { font-size: 15px; color: var(--text-dim); }
+
+  dl.kv-grid { display: grid; grid-template-columns: auto 1fr; gap: 9px 18px; font-size: 14px; margin: 0; }
+  .kv-grid dt { color: var(--text-dim); grid-column: 1; }
+  .kv-grid dd { margin: 0; grid-column: 2; font-family: var(--mono); color: var(--cyan); }
+
+  .flags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .flag { font-family: var(--mono); font-size: 12px; padding: 4px 9px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-dim); }
+  .flag.on { border-color: var(--amber); color: var(--amber); }
+
+  .note { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-soft); font-size: 13px; color: var(--text-dim); }
+  .note.callout { border-top: none; padding-top: 0; margin-top: 14px; padding: 12px 14px; background: var(--panel-raised); border-radius: 4px; border-left: 2px solid var(--amber); }
+
+  table.ref { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  table.ref caption { text-align: left; font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+  table.ref th, table.ref td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+  table.ref th { color: var(--text-dim); font-weight: 500; font-size: 12px; }
+  table.ref td.mono, table.ref th.mono { font-family: var(--mono); }
+  table.ref td.letter { font-family: var(--mono); font-weight: 600; }
+  table.ref tbody tr.active-row { background: rgba(242, 169, 59, 0.08); }
+  table.ref tbody tr.active-row td.letter { color: var(--amber); }
+  .table-scroll { overflow-x: auto; }
+
+  .badge-tag { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-dim); margin-left: 8px; }
+  .badge-tag.best { border-color: var(--green); color: var(--green); }
+
+  .stat-row { display: flex; gap: 28px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .stat { font-size: 13px; }
+  .stat .v { font-family: var(--mono); color: var(--cyan); font-size: 16px; display: block; }
+  .stat .l { color: var(--text-dim); }
+
+  textarea, input.wide { width: 100%; }
+</style>
+</head>
+<body>
+<!----This project is developed for mr. Abbas "d3hack" Aghayev by Senior Software Architect Mirvahid "uniChrome" Alizade with love and respect---->
+<!----Original Python Tool researched and developed by Afraim "0ximont" Abdel Ibni-Hasan @ 2014-->
+<div class="wrap">
+
+  <header>
+    <h1>IPv4 Toolkit</h1>
+    <p>Three tools for working with IPv4 addressing: identify a class and mask, summarize a range into CIDR blocks, and split a network into right-sized subnets.</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="lookup">Address Lookup</button>
+    <button class="tab-btn" data-tab="range">Range → CIDR</button>
+    <button class="tab-btn" data-tab="vlsm">Subnet Splitter</button>
+  </nav>
+
+  <section class="tab active" id="tab-lookup">
+    <div class="grid2">
+      <div class="panel">
+        <label class="field-label" for="ipInput">IPv4 address</label>
+        <input type="text" id="ipInput" placeholder="192.168.1.10" autocomplete="off" spellcheck="false">
+        <div class="err" id="errLookup"></div>
+        <div class="chips-label">Generate a sample</div>
+        <div class="chip-row">
+          <button class="chip" data-class="A">Class A</button>
+          <button class="chip" data-class="B">Class B</button>
+          <button class="chip" data-class="C">Class C</button>
+          <button class="chip" data-class="D">Class D</button>
+          <button class="chip" data-class="E">Class E</button>
+        </div>
+      </div>
+      <div class="panel" id="lookupResult">
+        <div class="result-empty">Enter an address, or generate a sample, to see its class and default mask.</div>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table class="ref" id="refTable">
+        <caption>Classful addressing reference (historical, pre-CIDR)</caption>
+        <thead><tr>
+          <th class="mono">Class</th><th class="mono">1st octet</th><th class="mono">Range</th>
+          <th class="mono">Default mask</th><th class="mono">CIDR</th><th>Hosts each</th><th>Typical use</th>
+        </tr></thead>
+        <tbody id="refBody"></tbody>
+      </table>
+    </div>
+    <div class="note">Classful addressing was replaced by CIDR in 1993 (RFC 1519). Kept here because it's still how "class" is taught, and the range flags (private/loopback/multicast) stay operationally relevant.</div>
+  </section>
+
+  <section class="tab" id="tab-range">
+    <div class="grid2">
+      <div class="panel">
+        <div class="row2">
+          <div>
+            <label class="field-label" for="rangeStart">Start IP</label>
+            <input type="text" id="rangeStart" placeholder="192.168.1.10" autocomplete="off" spellcheck="false">
+          </div>
+          <div>
+            <label class="field-label" for="rangeEnd">End IP</label>
+            <input type="text" id="rangeEnd" placeholder="192.168.1.15" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="err" id="errRange"></div>
+        <button class="action" id="rangeBtn">Calculate</button>
+      </div>
+      <div class="panel" id="rangeResult">
+        <div class="result-empty">Enter a start and end address to summarize the range.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-vlsm">
+    <div class="grid2">
+      <div class="panel">
+        <label class="field-label" for="vlsmBase">Base network (CIDR)</label>
+        <input type="text" id="vlsmBase" placeholder="10.0.0.0/24" autocomplete="off" spellcheck="false">
+        <div style="height:14px"></div>
+        <label class="field-label" for="vlsmHosts">Required hosts per subnet (comma-separated, largest first not required)</label>
+        <input type="text" id="vlsmHosts" placeholder="50, 30, 10, 10" autocomplete="off" spellcheck="false">
+        <div class="err" id="errVlsm"></div>
+        <button class="action" id="vlsmBtn">Split network</button>
+      </div>
+      <div class="panel" id="vlsmResult">
+        <div class="result-empty">Enter a base network and host requirements to generate a VLSM plan.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function isValidIPv4(str) {
+  const parts = str.trim().split('.');
+  if (parts.length !== 4) return false;
+  return parts.every(p => /^\d{1,3}$/.test(p) && Number(p) <= 255 && String(Number(p)) === p);
+}
+function ipToInt(ip) { return ip.split('.').reduce((a, o) => (a << 8) + Number(o), 0) >>> 0; }
+function intToIp(n) { return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.'); }
+function prefixToMask(p) { return p === 0 ? '0.0.0.0' : intToIp((0xFFFFFFFF << (32 - p)) >>> 0); }
+function maskInt(p) { return p === 0 ? 0 : (0xFFFFFFFF << (32 - p)) >>> 0; }
+
+const CLASSES = [
+  { letter: 'A', name: 'Class A', firstOctetRange: [1, 126], range: ['1.0.0.0', '126.255.255.255'], mask: '255.0.0.0', cidr: '/8', hostBits: 24, networks: '126', hostsEach: '16,777,214', use: 'Very large networks (early backbones, major ISPs)' },
+  { letter: 'B', name: 'Class B', firstOctetRange: [128, 191], range: ['128.0.0.0', '191.255.255.255'], mask: '255.255.0.0', cidr: '/16', hostBits: 16, networks: '16,384', hostsEach: '65,534', use: 'Medium-to-large organizations, universities' },
+  { letter: 'C', name: 'Class C', firstOctetRange: [192, 223], range: ['192.0.0.0', '223.255.255.255'], mask: '255.255.255.0', cidr: '/24', hostBits: 8, networks: '2,097,152', hostsEach: '254', use: 'Small networks, typical LANs' },
+  { letter: 'D', name: 'Class D', firstOctetRange: [224, 239], range: ['224.0.0.0', '239.255.255.255'], mask: 'n/a', cidr: 'n/a', hostBits: null, networks: 'n/a', hostsEach: 'n/a', use: 'Multicast groups (not assigned to hosts)' },
+  { letter: 'E', name: 'Class E', firstOctetRange: [240, 255], range: ['240.0.0.0', '255.255.255.255'], mask: 'n/a', cidr: 'n/a', hostBits: null, networks: 'n/a', hostsEach: 'n/a', use: 'Reserved for experimental / future use' }
+];
+const refBody = document.getElementById('refBody');
+CLASSES.forEach(c => {
+  const tr = document.createElement('tr');
+  tr.dataset.class = c.letter;
+  tr.innerHTML = `<td class="letter">${c.letter}</td><td class="mono">${c.firstOctetRange[0]}–${c.firstOctetRange[1]}</td>
+    <td class="mono">${c.range[0]} – ${c.range[1]}</td><td class="mono">${c.mask}</td><td class="mono">${c.cidr}</td>
+    <td class="mono">${c.hostsEach}</td><td>${c.use}</td>`;
+  refBody.appendChild(tr);
+});
+function classify(ip) { const f = Number(ip.split('.')[0]); return CLASSES.find(c => f >= c.firstOctetRange[0] && f <= c.firstOctetRange[1]); }
+function flags(ip) {
+  const [a, b] = ip.split('.').map(Number);
+  return {
+    private: (a === 10) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168),
+    loopback: a === 127, linkLocal: a === 169 && b === 254,
+    multicast: a >= 224 && a <= 239, reserved: a >= 240, broadcast: ip === '255.255.255.255'
+  };
+}
+function renderLookup(ip) {
+  const panel = document.getElementById('lookupResult');
+  const cls = classify(ip), f = flags(ip);
+  document.querySelectorAll('#refTable tbody tr').forEach(tr => tr.classList.toggle('active-row', tr.dataset.class === cls.letter));
+  panel.innerHTML = `
+    <div class="class-badge"><div class="class-letter">${cls.letter}</div><div class="class-name">${cls.name}${f.loopback ? ' · loopback range' : ''}</div></div>
+    <dl class="kv-grid">
+      <dt>Address</dt><dd>${ip}</dd>
+      <dt>Class range</dt><dd>${cls.range[0]} – ${cls.range[1]}</dd>
+      <dt>Default mask</dt><dd>${cls.mask}</dd>
+      <dt>Default CIDR</dt><dd>${cls.cidr}</dd>
+      <dt>Hosts per network</dt><dd>${cls.hostsEach}</dd>
+    </dl>
+    <div class="flags">
+      <span class="flag ${f.private ? 'on' : ''}">${f.private ? '●' : '○'} private</span>
+      <span class="flag ${f.loopback ? 'on' : ''}">${f.loopback ? '●' : '○'} loopback</span>
+      <span class="flag ${f.linkLocal ? 'on' : ''}">${f.linkLocal ? '●' : '○'} link-local</span>
+      <span class="flag ${f.multicast ? 'on' : ''}">${f.multicast ? '●' : '○'} multicast</span>
+      <span class="flag ${f.reserved ? 'on' : ''}">${f.reserved ? '●' : '○'} reserved</span>
+    </div>
+    <div class="note">${cls.use}${f.private ? ' — not publicly routable.' : ''}</div>`;
+}
+const ipInput = document.getElementById('ipInput'), errLookup = document.getElementById('errLookup');
+ipInput.addEventListener('input', () => {
+  const val = ipInput.value.trim();
+  if (!val) { errLookup.textContent = ''; ipInput.classList.remove('invalid'); return; }
+  if (!isValidIPv4(val)) { errLookup.textContent = 'Enter a valid IPv4 address, e.g. 192.168.1.10'; ipInput.classList.add('invalid'); return; }
+  errLookup.textContent = ''; ipInput.classList.remove('invalid'); renderLookup(val);
+});
+document.querySelectorAll('#tab-lookup button.chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const c = CLASSES.find(x => x.letter === btn.dataset.class);
+    const [lo, hi] = c.firstOctetRange;
+    const first = Math.floor(Math.random() * (hi - lo + 1)) + lo;
+    const r = () => Math.floor(Math.random() * 256);
+    ipInput.value = [first, r(), r(), r()].join('.');
+    ipInput.dispatchEvent(new Event('input'));
+    ipInput.focus();
+  });
+});
+
+function ipRangeToCidrs(startInt, endInt) {
+  const blocks = [];
+  let start = startInt;
+  while (start <= endInt) {
+    let prefixLen = 32;
+    for (let p = 0; p <= 32; p++) {
+      const blockSize = Math.pow(2, 32 - p);
+      const alignMask = blockSize - 1;
+      if ((start & alignMask) !== 0) continue;
+      if (start + blockSize - 1 > endInt) continue;
+      prefixLen = p; break;
+    }
+    const size = Math.pow(2, 32 - prefixLen);
+    blocks.push({ start, prefixLen, size });
+    start += size;
+  }
+  return blocks;
+}
+function bestSupernet(startInt, endInt) {
+  for (let p = 32; p >= 0; p--) {
+    const size = Math.pow(2, 32 - p);
+    const mask = maskInt(p);
+    const netAddr = (startInt & mask) >>> 0;
+    const broadcast = (netAddr + size - 1) >>> 0;
+    if (netAddr <= startInt && broadcast >= endInt) return { prefixLen: p, netAddr, broadcast, size };
+  }
+  return null;
+}
+document.getElementById('rangeBtn').addEventListener('click', () => {
+  const s = document.getElementById('rangeStart').value.trim();
+  const e = document.getElementById('rangeEnd').value.trim();
+  const err = document.getElementById('errRange');
+  const startInput = document.getElementById('rangeStart'), endInput = document.getElementById('rangeEnd');
+  startInput.classList.remove('invalid'); endInput.classList.remove('invalid');
+  if (!isValidIPv4(s) || !isValidIPv4(e)) {
+    err.textContent = 'Enter two valid IPv4 addresses.';
+    if (!isValidIPv4(s)) startInput.classList.add('invalid');
+    if (!isValidIPv4(e)) endInput.classList.add('invalid');
+    return;
+  }
+  const si = ipToInt(s), ei = ipToInt(e);
+  if (ei < si) { err.textContent = 'End address must not be before start address.'; endInput.classList.add('invalid'); return; }
+  err.textContent = '';
+
+  const exact = ipRangeToCidrs(si, ei);
+  const super_ = bestSupernet(si, ei);
+  const totalReq = ei - si + 1;
+  const superWaste = super_.size - totalReq;
+
+  let exactRows = exact.map(b => `<tr>
+      <td class="mono">${intToIp(b.start)}/${b.prefixLen}</td>
+      <td class="mono">${prefixToMask(b.prefixLen)}</td>
+      <td class="mono">${intToIp(b.start)} – ${intToIp(b.start + b.size - 1)}</td>
+      <td class="mono">${b.size}</td>
+    </tr>`).join('');
+
+  document.getElementById('rangeResult').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><span class="v">${s} – ${e}</span><span class="l">requested range</span></div>
+      <div class="stat"><span class="v">${totalReq}</span><span class="l">addresses requested</span></div>
+    </div>
+
+    <div class="note callout">
+      <strong style="color:var(--text)">Exact fit</strong><span class="badge-tag ${exact.length === 1 ? 'best' : ''}">${exact.length} block${exact.length > 1 ? 's' : ''}, zero waste</span>
+      <div style="margin-top:8px">Covers exactly the requested range with no extra addresses. Best when you're building an ACL, DHCP pool, or firewall rule that must not include anything outside the range.</div>
+    </div>
+    <table class="ref"><thead><tr><th class="mono">CIDR</th><th class="mono">Mask</th><th class="mono">Range</th><th class="mono">Size</th></tr></thead>
+      <tbody>${exactRows}</tbody></table>
+
+    <div class="note callout" style="margin-top:22px; border-left-color: var(--cyan)">
+      <strong style="color:var(--text)">Best single supernet</strong><span class="badge-tag ${exact.length > 1 ? 'best' : ''}">1 block, ${superWaste} extra address${superWaste === 1 ? '' : 'es'}</span>
+      <div style="margin-top:8px">The smallest single CIDR block that contains the whole range. Simpler to configure (one line instead of ${exact.length}), at the cost of including ${superWaste} address${superWaste === 1 ? '' : 'es'} outside what you asked for. Best for routing/summarization where a clean single entry matters more than exact boundaries.</div>
+    </div>
+    <dl class="kv-grid" style="margin-top:14px">
+      <dt>CIDR</dt><dd>${intToIp(super_.netAddr)}/${super_.prefixLen}</dd>
+      <dt>Mask</dt><dd>${prefixToMask(super_.prefixLen)}</dd>
+      <dt>Full block range</dt><dd>${intToIp(super_.netAddr)} – ${intToIp(super_.broadcast)}</dd>
+      <dt>Block size</dt><dd>${super_.size} addresses</dd>
+    </dl>
+  `;
+});
+
+document.getElementById('vlsmBtn').addEventListener('click', () => {
+  const baseStr = document.getElementById('vlsmBase').value.trim();
+  const hostsStr = document.getElementById('vlsmHosts').value.trim();
+  const err = document.getElementById('errVlsm');
+  const baseInput = document.getElementById('vlsmBase'), hostsInput = document.getElementById('vlsmHosts');
+  baseInput.classList.remove('invalid'); hostsInput.classList.remove('invalid');
+
+  const m = baseStr.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(\d{1,2})$/);
+  if (!m || !isValidIPv4(m[1]) || Number(m[2]) < 0 || Number(m[2]) > 30) {
+    err.textContent = 'Enter a base network like 10.0.0.0/24 (prefix 0–30).';
+    baseInput.classList.add('invalid'); return;
+  }
+  const baseIp = m[1], basePrefix = Number(m[2]);
+  const baseInt = ipToInt(baseIp) & maskInt(basePrefix);
+  const baseSize = Math.pow(2, 32 - basePrefix);
+  const baseEnd = baseInt + baseSize - 1;
+
+  const reqs = hostsStr.split(',').map(x => x.trim()).filter(Boolean).map(Number);
+  if (!reqs.length || reqs.some(n => !Number.isInteger(n) || n <= 0)) {
+    err.textContent = 'Enter one or more positive host counts, comma-separated, e.g. 50, 30, 10, 10';
+    hostsInput.classList.add('invalid'); return;
+  }
+  err.textContent = '';
+
+  const sorted = reqs.map((n, i) => ({ n, i })).sort((a, b) => b.n - a.n);
+  let cursor = baseInt;
+  const results = [];
+  let overflow = false;
+  for (const { n, i } of sorted) {
+    let prefix = 32;
+    for (let p = 30; p >= 0; p--) {
+      const usable = Math.pow(2, 32 - p) - 2;
+      if (usable >= n) prefix = p; else break;
+    }
+    const size = Math.pow(2, 32 - prefix);
+    const netAddr = cursor;
+    const broadcast = netAddr + size - 1;
+    if (broadcast > baseEnd) { overflow = true; results.push({ overflow: true, i, n }); continue; }
+    results.push({ i, n, prefix, netAddr, broadcast, size, usable: size - 2 });
+    cursor += size;
+  }
+  results.sort((a, b) => a.i - b.i);
+
+  const usedTotal = results.filter(r => !r.overflow).reduce((s, r) => s + r.size, 0);
+  const rows = results.map((r, idx) => r.overflow
+    ? `<tr><td class="mono">Subnet ${idx + 1}</td><td colspan="5" style="color:var(--red)">Needs ${r.n} hosts — doesn't fit in remaining space</td></tr>`
+    : `<tr>
+        <td class="mono">Subnet ${idx + 1}</td>
+        <td class="mono">${intToIp(r.netAddr)}/${r.prefix}</td>
+        <td class="mono">${prefixToMask(r.prefix)}</td>
+        <td class="mono">${intToIp(r.netAddr + 1)} – ${intToIp(r.broadcast - 1)}</td>
+        <td class="mono">${intToIp(r.broadcast)}</td>
+        <td class="mono">${r.usable} <span style="color:var(--text-dim)">(needed ${r.n})</span></td>
+      </tr>`).join('');
+
+  document.getElementById('vlsmResult').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><span class="v">${baseIp}/${basePrefix}</span><span class="l">base network</span></div>
+      <div class="stat"><span class="v">${baseSize}</span><span class="l">total addresses</span></div>
+      <div class="stat"><span class="v">${usedTotal}</span><span class="l">addresses allocated</span></div>
+      <div class="stat"><span class="v">${baseSize - usedTotal}</span><span class="l">addresses free</span></div>
+    </div>
+    ${overflow ? '<div class="note callout" style="border-left-color:var(--red)"><strong style="color:var(--text)">Doesn\'t fit</strong> — one or more subnets couldn\'t be allocated within the base network. Use a larger base network or fewer/smaller subnets.</div>' : ''}
+    <table class="ref"><thead><tr>
+        <th class="mono">Subnet</th><th class="mono">CIDR</th><th class="mono">Mask</th><th class="mono">Usable range</th><th class="mono">Broadcast</th><th class="mono">Usable hosts</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+    <div class="note">Allocated largest-first (standard VLSM practice) so blocks stay aligned. Subnet order above matches the order you typed the host counts in.</div>
+  `;
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section.tab').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+<!--_-THIS LINE IS NECESSARY, DON'T CHANGE IT-->
+<!----TXIuIGQzaGFjay4gVGhpcyBpcyBteSBob25lc3QgY29tbWVudCB0byB5b3UuIEdyZWF0IHRvIHNlZSBzb21lb25lIHJlYWxseSB0cnlpbmcgdG8gdGVhY2ggYmVnaW5uZXJzLCBpdCBnaXZlIG1lIGEgZ29vc2VidW1wIGFuZCBob3BlIHRvIHdvcmsgbW9yZSBsaWtlIHlvdS4gT3VyIHBlb3BsZSBoYXBweSB0byBoYXZlIHlvdQ==-->
+</body>
+</html>
