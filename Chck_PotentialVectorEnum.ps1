@@ -119,7 +119,6 @@ function Test-DomainGroupMembership {
     catch { return $false }
 }
 
-# burani cox barmaqlama heleki isliyir
 function ConvertTo-AccessMask {
     param([string]$permStr)
     if ($permStr -match '^0x') {
